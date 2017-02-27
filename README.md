@@ -4,7 +4,9 @@ JupyterHub for OpenShift
 Ensure that default service account can use REST API to create resources.
 
 ```
-oc policy add-role-to-user edit -z default
+oc create serviceaccount jupyterhub
+
+oc policy add-role-to-user edit -z jupyterhub
 ```
 
 Load image streams and templates for Jupyter Notebooks and JupyterHub.
