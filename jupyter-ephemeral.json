@@ -47,9 +47,9 @@
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                "name": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
                 }
             },
@@ -66,7 +66,7 @@
                         "imageChangeParams": {
                             "automatic": true,
                             "containerNames": [
-                                "notebook-${JUPYTER_NOTEBOOK_USER}"
+                                "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
@@ -77,22 +77,22 @@
                 ],
                 "replicas": 1,
                 "selector": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
+                    "deploymentconfig": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
                 },
                 "template": {
                     "metadata": {
                         "labels": {
-                            "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                            "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                            "app": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
+                            "deploymentconfig": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                             "service-type": "jupyterhub-singleuser"
                         }
                     },
                     "spec": {
                         "containers": [
                             {
-                                "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                                "name": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                                 "image": "${JUPYTERHUB_IMAGE_NAME}",
                                 "ports": [
                                     {
@@ -148,9 +148,9 @@
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                "name": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
                 }
             },
@@ -164,8 +164,8 @@
                     }
                 ],
                 "selector": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
+                    "deploymentconfig": "${JUPYTERHUB_SERVICE_NAME}-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
                 }
             }
