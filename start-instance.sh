@@ -2,10 +2,10 @@
 
 set -x
 
-NAME=$1
+IMAGE=jupyter-notebook:3.5
 
 SERVICE=`echo $HOSTNAME | sed -e 's/^\(.*\)-[^-]*-[^-]*$/\1/'`
-IMAGE=jupyter-notebook:3.5
+NAME=$SERVICE-$1
 
 JUPYTERHUB_HOSTNAME=${JUPYTERHUB_HOSTNAME:-$SERVICE}
 JUPYTERHUB_IMAGE_NAME=${JUPYTERHUB_IMAGE_NAME:-$IMAGE}

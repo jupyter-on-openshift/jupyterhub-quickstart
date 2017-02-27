@@ -47,7 +47,7 @@ class OpenShiftSpawner(Spawner):
         safe_username = ''.join([s if s in safe_chars else '-'
                 for s in self.user.name.lower()])
 
-        self.appid = 'notebook-%s' % safe_username
+        self.appid = '%s' % safe_username
 
         print('appid', self.appid)
 
