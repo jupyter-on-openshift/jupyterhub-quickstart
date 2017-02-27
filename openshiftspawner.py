@@ -47,7 +47,10 @@ class OpenShiftSpawner(Spawner):
         safe_username = ''.join([s if s in safe_chars else '-'
                 for s in self.user.name.lower()])
 
-        self.appid = '%s' % safe_username
+        hostname = os.environ['HOSTNAME']
+
+        self.service = '-'.join(hostname.split('-')[:-2])
+        self.appid = '%-%s' % (service, safe_username)
 
         print('appid', self.appid)
 
@@ -109,7 +112,7 @@ class OpenShiftSpawner(Spawner):
         env['JUPYTER_NOTEBOOK_PREFIX'] = self.user.server.base_url
         env['JUPYTER_NOTEBOOK_USER'] = self.user.name
 
-        yield execute_command(START_COMMAND, self.appid, env=env)
+        yield execute_command(START_COMMAND, self.service, self.appid, env=env)
 
         host = self.appid
         port = 8080
@@ -128,7 +131,7 @@ class OpenShiftSpawner(Spawner):
 
         """
 
-        yield execute_command(STOP_COMMAND, self.appid)
+        yield execute_command(STOP_COMMAND, self.service, self.appid)
 
     @tornado.gen.coroutine
     def poll(self):
@@ -163,7 +166,7 @@ class OpenShiftSpawner(Spawner):
         """
 
         try:
-            yield execute_command(POLL_COMMAND, self.appid)
+            yield execute_command(POLL_COMMAND, self.service, self.appid)
 
         except Exception as e:
             return 0

@@ -2,7 +2,7 @@
 
 set -x
 
-SERVICE=`echo $HOSTNAME | sed -e 's/^\(.*\)-[^-]*-[^-]*$/\1/'`
-NAME=$SERVICE-$1
+SERVICE=$1
+NAME=$2
 
 oc get svc/$NAME
