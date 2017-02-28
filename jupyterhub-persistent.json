@@ -1,0 +1,214 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "jupyterhub-ephemeral"
+    },
+    "parameters": [
+        {
+            "name": "JUPYTERHUB_APP_NAME",
+            "value": "jupyterhub",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_IMAGE_NAME",
+            "value": "jupyter-notebook:3.5",
+            "required": true
+        }
+    ],
+    "objects": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}-s2i",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "latest",
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "grahamdumpleton/warp0-debian8-python35:latest"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                    }
+                ],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "https://github.com/getwarped/jupyter-spawner"
+                    }
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "${JUPYTERHUB_APP_NAME}-s2i:latest"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${JUPYTERHUB_APP_NAME}:latest"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${JUPYTERHUB_APP_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${JUPYTERHUB_APP_NAME}:latest"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "app": "${JUPYTERHUB_APP_NAME}",
+                    "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "${JUPYTERHUB_APP_NAME}",
+                            "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "${JUPYTERHUB_APP_NAME}",
+                                "image": "${JUPYTERHUB_APP_NAME}:latest",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "JUPYTERHUB_IMAGE_NAME",
+                                        "value": "${JUPYTERHUB_IMAGE_NAME}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_STORAGE_TYPE",
+                                        "value": "persistent"
+                                    }
+                                ]
+                            }
+                        ],
+                        "serviceAccountName": "jupyterhub"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "8080-tcp",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "app": "${JUPYTERHUB_APP_NAME}",
+                    "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "host": "",
+                "to": {
+                    "kind": "Service",
+                    "name": "${JUPYTERHUB_APP_NAME}",
+                    "weight": 100
+                },
+                "port": {
+                    "targetPort": "8080-tcp"
+                },
+                "tls": {
+                    "termination": "edge",
+                    "insecureEdgeTerminationPolicy": "Redirect"
+                }
+            }
+        }
+    ]
+}

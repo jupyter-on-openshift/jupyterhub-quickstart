@@ -1,0 +1,33 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "volume-claim"
+    },
+    "parameters": [
+        {
+            "name": "JUPYTER_NOTEBOOK_USER",
+            "required": true
+        }
+    ],
+    "objects": [
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1,
+            "metadata": {
+                "name": "pvc-${JUPYTER_NOTEBOOK_USER}"
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1Gi"
+                    }
+                },
+                "volumeName": "pv-${JUPYTER_NOTEBOOK_USER}"
+            }
+        }
+    ]
+}
