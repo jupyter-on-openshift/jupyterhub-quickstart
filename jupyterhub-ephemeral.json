@@ -101,6 +101,23 @@
             }
         },
         {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}-pvc",
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "100Mb"
+                    }
+                }
+            }
+        },
+        {
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
@@ -144,6 +161,14 @@
                         }
                     },
                     "spec": {
+                        "volumes": [
+                            {
+                                "name": "storage",
+                                "persistentVolumeClaim": {
+                                    "claimName": "${JUPYTERHUB_APP_NAME}-pvc"
+                                }
+                            }
+                        ],
                         "containers": [
                             {
                                 "name": "${JUPYTERHUB_APP_NAME}",
@@ -172,6 +197,12 @@
                                         "value": "${JUPYTER_CPU_LIMIT}"
                                     }
                                 ]
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "name": "storage",
+                                "mountPath": "/opt/app-root/data"
                             }
                         ],
                         "serviceAccountName": "jupyterhub"
