@@ -104,7 +104,7 @@
             "kind": "PersistentVolumeClaim",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_APP_NAME}-pvc",
+                "name": "${JUPYTERHUB_APP_NAME}-pvc"
             },
             "spec": {
                 "accessModes": [
