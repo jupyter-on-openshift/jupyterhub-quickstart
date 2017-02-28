@@ -25,8 +25,7 @@
                     "requests": {
                         "storage": "1Gi"
                     }
-                },
-                "volumeName": "pv-${JUPYTER_NOTEBOOK_USER}"
+                }
             }
         }
     ]
