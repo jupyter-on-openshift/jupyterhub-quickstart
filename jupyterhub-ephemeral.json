@@ -152,7 +152,7 @@
                                 ]
                             }
                         ],
-                        "serviceAccountName": "myserviceaccount"
+                        "serviceAccountName": "jupyterhub"
                     }
                 }
             }
