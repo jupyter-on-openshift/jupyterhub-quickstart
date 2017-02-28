@@ -112,7 +112,7 @@
                 ],
                 "resources": {
                     "requests": {
-                        "storage": "100Mb"
+                        "storage": "100Mi"
                     }
                 }
             }
