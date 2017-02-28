@@ -16,7 +16,7 @@ if [ x"$JUPYTERHUB_STORAGE_TYPE" == "persistent" ]; then
     PVC=pvc-$JUPYTER_NOTEBOOK_USER
 
     if oc get pvc/$PVC; then
-        # pvc exists
+        true
     else
         oc process -f volume-claim.json \
             --value JUPYTER_NOTEBOOK_USER="$JUPYTER_NOTEBOOK_USER" | \
