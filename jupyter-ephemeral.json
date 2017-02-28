@@ -36,14 +36,6 @@
         {
             "name": "JUPYTER_NOTEBOOK_PREFIX",
             "required": true
-        },
-        {
-            "name": "JUPYTER_VOLUME_ROOTDIR",
-            "value": ""
-        },
-        {
-            "name": "JUPYTER_VOLUME_WORKSPACE",
-            "value": ""
         }
     ],
     "objects": [
@@ -132,14 +124,6 @@
                                     {
                                         "name": "JUPYTER_NOTEBOOK_PREFIX",
                                         "value": "${JUPYTER_NOTEBOOK_PREFIX}"
-                                    },
-                                    {
-                                        "name": "JUPYTER_VOLUME_ROOTDIR",
-                                        "value": "${JUPYTER_VOLUME_ROOTDIR}"
-                                    },
-                                    {
-                                        "name": "JUPYTER_VOLUME_WORKSPACE",
-                                        "value": "${JUPYTER_VOLUME_WORKSPACE}"
                                     }
                                 ]
                             }

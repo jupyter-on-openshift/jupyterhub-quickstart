@@ -36,14 +36,6 @@
         {
             "name": "JUPYTER_NOTEBOOK_PREFIX",
             "required": true
-        },
-        {
-            "name": "JUPYTER_VOLUME_ROOTDIR",
-            "value": ""
-        },
-        {
-            "name": "JUPYTER_VOLUME_WORKSPACE",
-            "value": ""
         }
     ],
     "objects": [
@@ -144,10 +136,6 @@
                                     {
                                         "name": "JUPYTER_VOLUME_ROOTDIR",
                                         "value": "/opt/app-root/data"
-                                    },
-                                    {
-                                        "name": "JUPYTER_VOLUME_WORKSPACE",
-                                        "value": "${JUPYTER_VOLUME_WORKSPACE}"
                                     }
                                 ],
                                 "volumeMounts": [

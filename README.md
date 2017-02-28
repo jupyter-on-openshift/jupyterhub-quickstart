@@ -16,6 +16,7 @@ oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/maste
 oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/master/openshift/templates.json
 
 oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/jupyterhub-ephemeral.json
+oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/jupyterhub-persistent.json
 ```
 
 
