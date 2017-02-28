@@ -14,6 +14,16 @@
             "name": "JUPYTERHUB_IMAGE_NAME",
             "value": "jupyter-notebook:3.5",
             "required": true
+        },
+        {
+            "name": "JUPYTER_MEMORY_LIMIT",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "JUPYTER_CPU_LIMIT",
+            "value": "500m",
+            "required": true
         }
     ],
     "objects": [
@@ -152,6 +162,14 @@
                                     {
                                         "name": "JUPYTERHUB_STORAGE_TYPE",
                                         "value": "persistent"
+                                    },
+                                    {
+                                        "name": "JUPYTER_MEMORY_LIMIT",
+                                        "value": "${JUPYTER_MEMORY_LIMIT}"
+                                    },
+                                    {
+                                        "name": "JUPYTER_CPU_LIMIT",
+                                        "value": "${JUPYTER_CPU_LIMIT}"
                                     }
                                 ]
                             }

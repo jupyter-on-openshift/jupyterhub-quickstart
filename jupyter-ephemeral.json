@@ -36,6 +36,16 @@
         {
             "name": "JUPYTER_NOTEBOOK_PREFIX",
             "required": true
+        },
+        {
+            "name": "JUPYTER_MEMORY_LIMIT",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "JUPYTER_CPU_LIMIT",
+            "value": "500m",
+            "required": true
         }
     ],
     "objects": [
@@ -125,7 +135,13 @@
                                         "name": "JUPYTER_NOTEBOOK_PREFIX",
                                         "value": "${JUPYTER_NOTEBOOK_PREFIX}"
                                     }
-                                ]
+                                ],
+                                "resources": {
+                                    "requests": {
+                                        "cpu": "${JUPYTER_CPU_LIMIT}",
+                                        "memory": "${JUPYTER_MEMORY_LIMIT}"
+                                    }
+                                }
                             }
                         ]
                     }
