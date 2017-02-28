@@ -13,7 +13,7 @@
     "objects": [
         {
             "kind": "PersistentVolumeClaim",
-            "apiVersion": "v1,
+            "apiVersion": "v1",
             "metadata": {
                 "name": "pvc-${JUPYTER_NOTEBOOK_USER}"
             },
