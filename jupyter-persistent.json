@@ -149,7 +149,7 @@
                                     }
                                 ],
                                 "resources": {
-                                    "requests": {
+                                    "limits": {
                                         "cpu": "${JUPYTER_CPU_LIMIT}",
                                         "memory": "${JUPYTER_MEMORY_LIMIT}"
                                     }
