@@ -196,13 +196,13 @@
                                         "name": "JUPYTER_CPU_LIMIT",
                                         "value": "${JUPYTER_CPU_LIMIT}"
                                     }
+                                ],
+                                "volumeMounts": [
+                                    {
+                                        "name": "storage",
+                                        "mountPath": "/opt/app-root/data"
+                                    }
                                 ]
-                            }
-                        ],
-                        "volumeMounts": [
-                            {
-                                "name": "storage",
-                                "mountPath": "/opt/app-root/data"
                             }
                         ],
                         "serviceAccountName": "jupyterhub"
