@@ -6,4 +6,6 @@ c.JupyterHub.authenticator_class = 'dummyauthenticator.DummyAuthenticator'
 c.JupyterHub.cookie_secret_file = '/opt/app-root/data/cookie_secret'
 c.JupyterHub.db_url = '/opt/app-root/data/jupyterhub.sqlite'
 c.Spawner.http_timeout = 60
+c.Authenticator.whitelist = set(['root', 'games', 'nobody'])
 c.Authenticator.admin_users = set(['root'])
+c.JupyterHub.admin_access = True
