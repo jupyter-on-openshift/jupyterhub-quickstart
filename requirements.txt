@@ -1,2 +1,4 @@
 jupyterhub
 jupyterhub-dummyauthenticator
+oauthenticator
+psycopg2

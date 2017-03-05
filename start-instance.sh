@@ -13,7 +13,7 @@ JUPYTERHUB_IMAGE_NAME=${JUPYTERHUB_IMAGE_NAME:-$IMAGE}
 JUPYTERHUB_API_URL=http://$JUPYTERHUB_HOST_NAME:8080/hub/api
 
 if [ x"$JUPYTERHUB_STORAGE_TYPE" == x"persistent" ]; then
-    PVC=pvc-$JUPYTER_NOTEBOOK_USER
+    PVC=notebook-${JUPYTER_NOTEBOOK_USER}
 
     if oc get pvc/$PVC; then
         true
