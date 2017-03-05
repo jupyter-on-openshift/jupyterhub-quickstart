@@ -46,7 +46,12 @@
             "name": "JUPYTER_CPU_LIMIT",
             "value": "500m",
             "required": true
-        }
+        },
+        {
+            "name": "REPLICA_COUNT",
+            "value": "1",
+            "required": true
+        },
     ],
     "objects": [
         {
@@ -81,7 +86,7 @@
                         }
                     }
                 ],
-                "replicas": 1,
+                "replicas": "${{REPLICA_COUNT}}",
                 "selector": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
                     "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",

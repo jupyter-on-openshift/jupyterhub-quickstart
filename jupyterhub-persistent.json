@@ -26,6 +26,11 @@
             "required": true
         },
         {
+            "name": "REPLICA_COUNT",
+            "value": "1",
+            "required": true
+        },
+        {
             "name": "DATABASE_PASSWORD",
             "generate": "expression",
             "from": "[a-zA-Z0-9]{16}",
@@ -167,7 +172,7 @@
                         }
                     }
                 ],
-                "replicas": 1,
+                "replicas": "${{REPLICA_COUNT}}",
                 "selector": {
                     "app": "${JUPYTERHUB_APP_NAME}",
                     "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
