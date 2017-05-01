@@ -47,3 +47,5 @@ else
         --param JUPYTER_MEMORY_LIMIT="$JUPYTER_MEMORY_LIMIT" \
         --param JUPYTER_CPU_LIMIT="$JUPYTER_CPU_LIMIT"
 fi
+
+oc rollout status dc/$NAME --watch
