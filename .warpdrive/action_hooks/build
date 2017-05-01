@@ -6,4 +6,4 @@ set -eo pipefail
 
 npm install -g configurable-http-proxy
 
-wget -q https://github.com/openshift/origin/releases/download/v1.4.1/openshift-origin-client-tools-v1.4.1-3f9807a-linux-64bit.tar.gz -O /tmp/tools.tar.gz && tar -C /opt/app-root/bin --strip-components=1 --wildcards -x -f /tmp/tools.tar.gz '*oc' && rm /tmp/tools.tar.gz
+wget -q https://github.com/openshift/origin/releases/download/v1.5.0/openshift-origin-client-tools-v1.5.0-031cbe4-linux-64bit.tar.gz -O /tmp/tools.tar.gz && tar -C /opt/app-root/bin --strip-components=1 --wildcards -x -f /tmp/tools.tar.gz '*oc' && rm /tmp/tools.tar.gz
