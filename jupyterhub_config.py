@@ -29,5 +29,12 @@ elif os.environ.get('JUPYTERHUB_AUTHENTICATOR') == 'GitHub':
     c.GitHubOAuthenticator.client_id = os.environ['OAUTH_CLIENT_ID']
     c.GitHubOAuthenticator.client_secret = os.environ['OAUTH_CLIENT_SECRET']
 
-c.Authenticator.whitelist = set(os.environ.get('JUPYTERHUB_USER_WHITELIST', '').split(','))
-c.Authenticator.admin_users = set(os.environ.get('JUPYTERHUB_ADMIN_USERS', '').split(','))
+whitelist = os.environ.get('JUPYTERHUB_USER_WHITELIST', '').strip()
+whitelist = whitelist and whitelist.split(',') or []
+
+c.Authenticator.whitelist = set(whitelist)
+
+admin_users = os.environ.get('JUPYTERHUB_ADMIN_USERS', '').strip()
+admin_users = admin_users and admin_users.split(',') or []
+
+c.Authenticator.admin_users = set(admin_users)
