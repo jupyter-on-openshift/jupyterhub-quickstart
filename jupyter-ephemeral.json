@@ -51,7 +51,7 @@
             "name": "REPLICA_COUNT",
             "value": "1",
             "required": true
-        },
+        }
     ],
     "objects": [
         {
