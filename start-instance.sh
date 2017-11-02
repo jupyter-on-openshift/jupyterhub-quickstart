@@ -48,4 +48,13 @@ else
         --param JUPYTER_CPU_LIMIT="$JUPYTER_CPU_LIMIT"
 fi
 
-oc rollout status dc/$NAME --watch
+
+while true; do
+    sleep 1
+
+    PODS=`oc get pod --selector app=$NAME -o 'jsonpath={.items[?(@.status.phase=="Running")].metadata.name}'`
+
+    if [ x"$PODS" = x"$NAME" ]; then
+        break
+    fi
+done

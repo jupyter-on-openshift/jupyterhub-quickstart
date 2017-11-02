@@ -55,102 +55,68 @@
     ],
     "objects": [
         {
-            "kind": "DeploymentConfig",
             "apiVersion": "v1",
+            "kind": "Pod",
             "metadata": {
                 "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
+                },
+                "annotations": {
+                    "alpha.image.policy.openshift.io/resolve-names": "*"
                 }
             },
             "spec": {
-                "strategy": {
-                    "type": "Recreate"
-                },
-                "triggers": [
+                "containers": [
                     {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "notebook-${JUPYTER_NOTEBOOK_USER}"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "${JUPYTERHUB_IMAGE_NAME}"
+                        "env": [
+                            {
+                                "name": "JUPYTER_SERVICE_TYPE",
+                                "value": "jupyterhub-singleuser"
+                            },
+                            {
+                                "name": "JUPYTER_NOTEBOOK_USER",
+                                "value": "${JUPYTER_NOTEBOOK_USER}"
+                            },
+                            {
+                                "name": "JUPYTERHUB_API_TOKEN",
+                                "value": "${JUPYTERHUB_API_TOKEN}"
+                            },
+                            {
+                                "name": "JUPYTERHUB_API_URL",
+                                "value": "${JUPYTERHUB_API_URL}"
+                            },
+                            {
+                                "name": "JUPYTERHUB_SERVICE_NAME",
+                                "value": "${JUPYTERHUB_SERVICE_NAME}"
+                            },
+                            {
+                                "name": "JUPYTERHUB_SERVICE_PREFIX",
+                                "value": "${JUPYTERHUB_SERVICE_PREFIX}"
+                            },
+                            {
+                                "name": "JUPYTER_NOTEBOOK_PREFIX",
+                                "value": "${JUPYTER_NOTEBOOK_PREFIX}"
+                            }
+                        ],
+                        "image": "${JUPYTERHUB_IMAGE_NAME}",
+                        "name": "notebook",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "${JUPYTER_CPU_LIMIT}",
+                                "memory": "${JUPYTER_MEMORY_LIMIT}"
                             }
                         }
                     }
                 ],
-                "replicas": "${{REPLICA_COUNT}}",
-                "selector": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "service-type": "jupyterhub-singleuser"
-                },
-                "template": {
-                    "metadata": {
-                        "labels": {
-                            "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                            "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                            "service-type": "jupyterhub-singleuser"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                                "image": "${JUPYTERHUB_IMAGE_NAME}",
-                                "ports": [
-                                    {
-                                        "containerPort": 8080,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "env": [
-                                    {
-                                        "name": "JUPYTER_SERVICE_TYPE",
-                                        "value": "jupyterhub-singleuser"
-                                    },
-                                    {
-                                        "name": "JUPYTER_NOTEBOOK_USER",
-                                        "value": "${JUPYTER_NOTEBOOK_USER}"
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_API_TOKEN",
-                                        "value": "${JUPYTERHUB_API_TOKEN}"
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_API_URL",
-                                        "value": "${JUPYTERHUB_API_URL}"
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_SERVICE_NAME",
-                                        "value": "${JUPYTERHUB_SERVICE_NAME}"
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_SERVICE_PREFIX",
-                                        "value": "${JUPYTERHUB_SERVICE_PREFIX}"
-                                    },
-                                    {
-                                        "name": "JUPYTER_NOTEBOOK_PREFIX",
-                                        "value": "${JUPYTER_NOTEBOOK_PREFIX}"
-                                    }
-                                ],
-                                "resources": {
-                                    "limits": {
-                                        "cpu": "${JUPYTER_CPU_LIMIT}",
-                                        "memory": "${JUPYTER_MEMORY_LIMIT}"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
+                "restartPolicy": "Never"
             }
         },
         {
@@ -174,7 +140,6 @@
                 ],
                 "selector": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "deploymentconfig": "notebook-${JUPYTER_NOTEBOOK_USER}",
                     "service-type": "jupyterhub-singleuser"
                 }
             }
