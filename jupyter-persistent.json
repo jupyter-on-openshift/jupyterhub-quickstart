@@ -56,7 +56,8 @@
                 "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "service-type": "jupyterhub-singleuser"
+                    "service-type": "jupyterhub-singleuser",
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
                 },
                 "annotations": {
                     "alpha.image.policy.openshift.io/resolve-names": "*"
@@ -139,7 +140,8 @@
                 "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "service-type": "jupyterhub-singleuser"
+                    "service-type": "jupyterhub-singleuser",
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
                 }
             },
             "spec": {
@@ -153,7 +155,8 @@
                 ],
                 "selector": {
                     "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
-                    "service-type": "jupyterhub-singleuser"
+                    "service-type": "jupyterhub-singleuser",
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
                 }
             }
         }
