@@ -8,7 +8,7 @@ import tornado.gen
 import tornado.concurrent
 import tornado.process
 
-SRC_ROOT = os.environ['WARPDRIVE_SRC_ROOT']
+SRC_ROOT = '/opt/app-root/src'
 
 START_COMMAND = os.path.join(SRC_ROOT, 'start-instance.sh')
 STOP_COMMAND = os.path.join(SRC_ROOT, 'stop-instance.sh')
