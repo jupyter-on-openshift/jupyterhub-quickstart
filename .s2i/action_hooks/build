@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -x
+
+set -eo pipefail
+
+# Install npm packages required by JupyterHub.
+
+echo " -----> Installing npm packages."
+
+npm install -g configurable-http-proxy
+
+# Install OpenShift command line client.
+
+echo " -----> Installing OpenShift command line client."
+
+powershift client install --bindir /opt/app-root/bin
+
+# Remove the wheelhouse if it exists.
+
+echo " -----> Removing wheelhouse directory from final image."
+
+rm -rf /opt/app-root/src/.s2i/wheelhouse
+
+# Fix up permissions on application area.
+
+echo " -----> Fixing up permissions."
+
+fix-permissions /opt/app-root

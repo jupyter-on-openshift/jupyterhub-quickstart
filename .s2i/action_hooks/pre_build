@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Ensure we are using the latest pip and wheel packages.
+
+pip install -U pip setuptools wheel
+
+# Restore the cache directory from an incremental build.
+
+if [ -d /tmp/artifacts/cache ]; then
+    echo " -----> Restoring cache directory from incremental build."
+    mv /tmp/artifacts/cache /opt/app-root/
+fi
+
+# If a wheelhouse directory has been provided, ensure that the cache
+# directory exists. This has a side effect of ensuring pip will use the
+# cache directory.
+
+if [ -d /opt/app-root/src/.s2i/wheelhouse ]; then
+    mkdir -p /opt/app-root/cache
+fi
+
+# Create additional directories.
+
+echo " -----> Creating additional directories."
+
+mkdir -p /opt/app-root/data
