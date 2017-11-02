@@ -68,27 +68,6 @@
             }
         },
         {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${JUPYTERHUB_APP_NAME}-s2i",
-                "labels": {
-                    "app": "${JUPYTERHUB_APP_NAME}"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "latest",
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "grahamdumpleton/warp0-debian8-python35:latest"
-                        }
-                    }
-                ]
-            }
-        },
-        {
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
@@ -118,7 +97,8 @@
                     "sourceStrategy": {
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "${JUPYTERHUB_APP_NAME}-s2i:latest"
+                            "namespace": "openshift",
+                            "name": "python:3.5"
                         }
                     }
                 },
