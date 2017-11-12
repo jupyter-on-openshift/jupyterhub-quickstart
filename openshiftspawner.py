@@ -50,7 +50,7 @@ class OpenShiftSpawner(Spawner):
         hostname = os.environ['HOSTNAME']
 
         self.service = '-'.join(hostname.split('-')[:-2])
-        self.appid = 'notebook-%s' % safe_username
+        self.appid = '%s-nb-%s' % (self.service, safe_username)
 
         print('appid', self.appid)
 
