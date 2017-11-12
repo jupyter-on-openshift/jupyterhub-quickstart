@@ -6,6 +6,10 @@
     },
     "parameters": [
         {
+            "name": "JUPYTERHUB_APP_NAME",
+            "required": true
+        },
+        {
             "name": "JUPYTERHUB_HOST_NAME",
             "required": true
         },
@@ -55,9 +59,10 @@
             "metadata": {
                 "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "service-type": "jupyterhub-singleuser",
-                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}",
+                    "notebook-instance": "notebook-${JUPYTER_NOTEBOOK_USER}"
                 },
                 "annotations": {
                     "alpha.image.policy.openshift.io/resolve-names": "*"
@@ -139,9 +144,10 @@
             "metadata": {
                 "name": "notebook-${JUPYTER_NOTEBOOK_USER}",
                 "labels": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "service-type": "jupyterhub-singleuser",
-                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}",
+                    "notebook-instance": "notebook-${JUPYTER_NOTEBOOK_USER}"
                 }
             },
             "spec": {
@@ -154,9 +160,10 @@
                     }
                 ],
                 "selector": {
-                    "app": "notebook-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "service-type": "jupyterhub-singleuser",
-                    "hub-instance": "${JUPYTERHUB_HOST_NAME}"
+                    "hub-instance": "${JUPYTERHUB_HOST_NAME}",
+                    "notebook-instance": "notebook-${JUPYTER_NOTEBOOK_USER}"
                 }
             }
         }

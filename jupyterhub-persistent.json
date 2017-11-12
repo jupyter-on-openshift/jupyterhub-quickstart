@@ -298,7 +298,7 @@
             "metadata": {
                 "name": "${JUPYTERHUB_APP_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_APP_NAME}-db"
+                    "app": "${JUPYTERHUB_APP_NAME}"
                 }
             },
             "spec": {
@@ -318,13 +318,13 @@
             "metadata": {
                 "name": "${JUPYTERHUB_APP_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_APP_NAME}-db"
+                    "app": "${JUPYTERHUB_APP_NAME}"
                 }
             },
             "spec": {
                 "replicas": 1,
                 "selector": {
-                    "app": "${JUPYTERHUB_APP_NAME}-db",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
                 },
                 "strategy": {
@@ -333,7 +333,7 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "app": "${JUPYTERHUB_APP_NAME}-db",
+                            "app": "${JUPYTERHUB_APP_NAME}",
                             "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
                         }
                     },
@@ -426,7 +426,7 @@
             "metadata": {
                 "name": "${JUPYTERHUB_APP_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_APP_NAME}-db"
+                    "app": "${JUPYTERHUB_APP_NAME}"
                 }
             },
             "spec": {
@@ -439,7 +439,7 @@
                     }
                 ],
                 "selector": {
-                    "app": "${JUPYTERHUB_APP_NAME}-db",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
                 }
             }

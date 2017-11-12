@@ -25,6 +25,7 @@ if [ x"$JUPYTERHUB_STORAGE_TYPE" == x"persistent" ]; then
 
     oc new-app --file jupyter-persistent.json \
         --param JUPYTERHUB_IMAGE_NAME="$JUPYTERHUB_IMAGE_NAME" \
+        --param JUPYTERHUB_APP_NAME="$JUPYTERHUB_APP_NAME" \
         --param JUPYTERHUB_HOST_NAME="$JUPYTERHUB_HOST_NAME" \
         --param JUPYTER_NOTEBOOK_USER="$JUPYTER_NOTEBOOK_USER" \
         --param JUPYTERHUB_API_TOKEN="$JUPYTERHUB_API_TOKEN" \
@@ -37,6 +38,7 @@ if [ x"$JUPYTERHUB_STORAGE_TYPE" == x"persistent" ]; then
 else
     oc new-app --file jupyter-ephemeral.json \
         --param JUPYTERHUB_IMAGE_NAME="$JUPYTERHUB_IMAGE_NAME" \
+        --param JUPYTERHUB_APP_NAME="$JUPYTERHUB_APP_NAME" \
         --param JUPYTERHUB_HOST_NAME="$JUPYTERHUB_HOST_NAME" \
         --param JUPYTER_NOTEBOOK_USER="$JUPYTER_NOTEBOOK_USER" \
         --param JUPYTERHUB_API_TOKEN="$JUPYTERHUB_API_TOKEN" \
