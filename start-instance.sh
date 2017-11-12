@@ -54,7 +54,7 @@ fi
 while true; do
     sleep 1
 
-    PODS=`oc get pod --selector app=$NAME -o 'jsonpath={.items[?(@.status.phase=="Running")].metadata.name}'`
+    PODS=`oc get pod --selector notebook-instance=$NAME -o 'jsonpath={.items[?(@.status.phase=="Running")].metadata.name}'`
 
     if [ x"$PODS" = x"$NAME" ]; then
         break
