@@ -19,6 +19,7 @@ if [ x"$JUPYTERHUB_STORAGE_TYPE" == x"persistent" ]; then
         true
     else
         oc process -f volume-claim.json \
+            --param JUPYTERHUB_APP_NAME="$JUPYTERHUB_APP_NAME" \
             --value JUPYTER_NOTEBOOK_USER="$JUPYTER_NOTEBOOK_USER" | \
             oc create -f -
     fi

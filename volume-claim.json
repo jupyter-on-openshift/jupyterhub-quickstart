@@ -6,6 +6,10 @@
     },
     "parameters": [
         {
+            "name": "JUPYTERHUB_APP_NAME",
+            "required": true
+        },
+        {
             "name": "JUPYTER_NOTEBOOK_USER",
             "required": true
         }
@@ -15,7 +19,7 @@
             "kind": "PersistentVolumeClaim",
             "apiVersion": "v1",
             "metadata": {
-                "name": "notebook-${JUPYTER_NOTEBOOK_USER}"
+                "name": "${JUPYTERHUB_APP_NAME}-nb-${JUPYTER_NOTEBOOK_USER}"
             },
             "spec": {
                 "accessModes": [
