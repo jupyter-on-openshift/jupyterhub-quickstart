@@ -15,8 +15,5 @@ Load image streams and templates for Jupyter Notebooks and JupyterHub.
 oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/master/openshift/images.json
 oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/master/openshift/templates.json
 
-oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/jupyterhub-ephemeral.json
-oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/jupyterhub-persistent.json
+oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/templates/jupyterhub.json
 ```
-
-

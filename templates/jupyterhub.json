@@ -2,7 +2,7 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "jupyterhub-ephemeral"
+        "name": "jupyterhub-persistent"
     },
     "parameters": [
         {
@@ -16,6 +16,11 @@
             "required": true
         },
         {
+            "name": "JUPYTERHUB_BLUEPRINT",
+            "value": "persistent",
+            "required": true
+        },
+        {
             "name": "JUPYTER_MEMORY_LIMIT",
             "value": "512Mi",
             "required": true
@@ -23,6 +28,12 @@
         {
             "name": "JUPYTER_CPU_LIMIT",
             "value": "500m",
+            "required": true
+        },
+        {
+            "name": "DATABASE_PASSWORD",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{16}",
             "required": true
         },
         {
@@ -141,7 +152,6 @@
                         }
                     }
                 ],
-                "replicas": 1,
                 "selector": {
                     "app": "${JUPYTERHUB_APP_NAME}",
                     "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
@@ -174,8 +184,8 @@
                                         "value": "${JUPYTERHUB_IMAGE_NAME}"
                                     },
                                     {
-                                        "name": "JUPYTERHUB_STORAGE_TYPE",
-                                        "value": "ephemeral"
+                                        "name": "JUPYTERHUB_BLUEPRINT",
+                                        "value": "${JUPYTERHUB_BLUEPRINT}"
                                     },
                                     {
                                         "name": "JUPYTER_MEMORY_LIMIT",
@@ -184,6 +194,14 @@
                                     {
                                         "name": "JUPYTER_CPU_LIMIT",
                                         "value": "${JUPYTER_CPU_LIMIT}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_HOST",
+                                        "value": "${JUPYTERHUB_APP_NAME}-db"
                                     },
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
@@ -228,6 +246,9 @@
                 "name": "${JUPYTERHUB_APP_NAME}",
                 "labels": {
                     "app": "${JUPYTERHUB_APP_NAME}"
+                },
+                "annotations": {
+                    "service.alpha.openshift.io/dependencies": "[{\"name\":\"${JUPYTERHUB_APP_NAME}-db\",\"namespace\":\"\",\"kind\":\"Service\"}]"
                 }
             },
             "spec": {
@@ -267,6 +288,158 @@
                 "tls": {
                     "termination": "edge",
                     "insecureEdgeTerminationPolicy": "Redirect"
+                }
+            }
+        },
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}-db",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1Gi"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "DeploymentConfig",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}-db",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "app": "${JUPYTERHUB_APP_NAME}",
+                    "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "${JUPYTERHUB_APP_NAME}",
+                            "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "postgresql",
+                                "env": [
+                                    {
+                                        "name": "POSTGRESQL_USER",
+                                        "value": "jupyterhub"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_DATABASE",
+                                        "value": "jupyterhub"
+                                    }
+                                ],
+                                "livenessProbe": {
+                                    "tcpSocket": {
+                                        "port": 5432
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "containerPort": 5432,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/sh",
+                                            "-i",
+                                            "-c",
+                                            "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
+                                        ]
+                                    }
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "256Mi"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/var/lib/pgsql/data",
+                                        "name": "data"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "data",
+                                "persistentVolumeClaim": {
+                                    "claimName": "${JUPYTERHUB_APP_NAME}-db"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "triggers": [
+                    {
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "postgresql"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "postgresql:9.5",
+                                "namespace": "openshift"
+                            }
+                        },
+                        "type": "ImageChange"
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_APP_NAME}-db",
+                "labels": {
+                    "app": "${JUPYTERHUB_APP_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "5432-tcp",
+                        "protocol": "TCP",
+                        "port": 5432,
+                        "targetPort": 5432
+                    }
+                ],
+                "selector": {
+                    "app": "${JUPYTERHUB_APP_NAME}",
+                    "deploymentconfig": "${JUPYTERHUB_APP_NAME}-db"
                 }
             }
         }

@@ -2,4 +2,4 @@
 
 set -x
 
-exec jupyterhub -f jupyterhub_config.py
+exec jupyterhub -f configs/default.py

@@ -3,7 +3,7 @@ import os
 c.JupyterHub.port = 8080
 c.JupyterHub.hub_port = 8081
 c.JupyterHub.proxy_api_port = 8082
-c.JupyterHub.spawner_class = 'openshiftspawner.OpenShiftSpawner'
+c.JupyterHub.spawner_class = 'spawner.OpenShiftSpawner'
 c.Spawner.http_timeout = 60
 c.JupyterHub.admin_access = True
 

@@ -8,11 +8,11 @@ import tornado.gen
 import tornado.concurrent
 import tornado.process
 
-SRC_ROOT = '/opt/app-root/src'
+HERE = os.path.dirname(__file__)
 
-START_COMMAND = os.path.join(SRC_ROOT, 'start-instance.sh')
-STOP_COMMAND = os.path.join(SRC_ROOT, 'stop-instance.sh')
-POLL_COMMAND = os.path.join(SRC_ROOT, 'poll-instance.sh')
+START_COMMAND = os.path.join(HERE, 'start-instance')
+STOP_COMMAND = os.path.join(HERE, 'stop-instance')
+POLL_COMMAND = os.path.join(HERE, 'poll-instance')
 
 def execute_command(*command, env=None):
     future = tornado.concurrent.Future()

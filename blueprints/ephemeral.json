@@ -50,11 +50,6 @@
             "name": "JUPYTER_CPU_LIMIT",
             "value": "500m",
             "required": true
-        },
-        {
-            "name": "REPLICA_COUNT",
-            "value": "1",
-            "required": true
         }
     ],
     "objects": [
@@ -143,7 +138,7 @@
                     }
                 ],
                 "selector": {
-                    "app": "${JUPYTERHUB_APP_NAME}-nb-${JUPYTER_NOTEBOOK_USER}",
+                    "app": "${JUPYTERHUB_APP_NAME}",
                     "notebook": "${JUPYTERHUB_APP_NAME}-nb-${JUPYTER_NOTEBOOK_USER}"
                 }
             }
