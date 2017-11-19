@@ -2,7 +2,7 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "jupyterhub-persistent"
+        "name": "jupyterhub"
     },
     "parameters": [
         {
