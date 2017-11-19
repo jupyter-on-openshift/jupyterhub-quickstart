@@ -152,6 +152,7 @@
                         }
                     }
                 ],
+                "replicas": 1,
                 "selector": {
                     "app": "${JUPYTERHUB_APP_NAME}",
                     "deploymentconfig": "${JUPYTERHUB_APP_NAME}"
