@@ -1,0 +1,71 @@
+#!/bin/bash
+
+set -x
+
+set -eo pipefail
+
+# Create a profile for 'notebook'. Add code for setting password for
+# the notebook from an environment variable.
+
+jupyter notebook --generate-config
+
+cat >> ${HOME}/.jupyter/jupyter_notebook_config.py << !
+import os
+password = os.environ.get('JUPYTER_NOTEBOOK_PASSWORD')
+if password:
+    import notebook.auth
+    c.NotebookApp.password = notebook.auth.passwd(password)
+    del password
+    del os.environ['JUPYTER_NOTEBOOK_PASSWORD']
+!
+
+# Enable notebook server extensions.
+
+if [ x"${JUPYTER_SERVER_EXTENSIONS}" != x"" ]; then
+    for extension in $(echo ${JUPYTER_SERVER_EXTENSIONS} | tr "," " "); do
+        jupyter serverextension enable --py ${extension} --user
+    done
+fi
+
+# Install assets and enable notebook extensions.
+
+if [ x"${JUPYTER_NOTEBOOK_EXTENSIONS}" != x"" ]; then
+    for extension in $(echo ${JUPYTER_NOTEBOOK_EXTENSIONS} | tr "," " "); do
+        jupyter nbextension install --py ${extension} --user
+        jupyter nbextension enable --py ${extension} --user
+    done
+fi
+
+# Copy files into volume if specified and change notebook directory.
+
+JUPYTER_NOTEBOOK_DIR=${JUPYTER_NOTEBOOK_DIR:-${WARPDRIVE_SRC_ROOT}}
+
+if [ x"${JUPYTER_VOLUME_ROOTDIR}" != x"" ]; then
+    JUPYTER_VOLUME_WORKSPACE=${JUPYTER_VOLUME_WORKSPACE:-work}
+
+    WORKDIR=${JUPYTER_VOLUME_ROOTDIR}/${JUPYTER_VOLUME_WORKSPACE}
+
+    if [ ! -d ${WORKDIR} ]; then
+        mkdir -p ${WORKDIR}
+        cp -rp ${JUPYTER_NOTEBOOK_DIR}/. ${WORKDIR}
+    fi
+
+    JUPYTER_NOTEBOOK_DIR=${JUPYTER_VOLUME_ROOTDIR}
+fi
+
+# Start the Jupyter notebook instance.
+
+cd ${JUPYTER_NOTEBOOK_DIR}
+
+if [ x"$JUPYTERHUB_API_TOKEN" != x"" ]; then
+    exec jupyterhub-singleuser --ip=* --port=8080 \
+      --notebook-dir=${JUPYTER_NOTEBOOK_DIR} \
+      --hub-api-url=${JUPYTERHUB_API_URL} \
+      --hub-prefix=${JUPYTERHUB_SERVICE_PREFIX} \
+      --cookie-name=${JUPYTERHUB_SERVICE_NAME} \
+      --base-url=${JUPYTER_NOTEBOOK_PREFIX} \
+      --user=${JUPYTER_NOTEBOOK_USER}
+fi
+
+exec jupyter notebook --no-browser --ip=* --port=8080 \
+  --notebook-dir=${JUPYTER_NOTEBOOK_DIR}

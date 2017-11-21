@@ -1,0 +1,9 @@
+{
+  "labels": [
+    {"io.k8s.display-name":"Jupyter Notebook"},
+    {"io.k8s.description":"Jupyter Notebook."},
+    {"io.openshift.s2i.scripts-url":"image:///opt/app-root/s2i"},
+    {"io.s2i.scripts-url":"image:///opt/app-root/s2i"},
+    {"io.openshift.tags":"builder,python,jupyter"}
+  ]
+}
