@@ -14,7 +14,7 @@ JUPYTERHUB_API_URL=http://$JUPYTERHUB_HOST_NAME:8080/hub/api
 
 JUPYTERHUB_BLUEPRINT=${JUPYTERHUB_BLUEPRINT:-persistent}
 
-oc process --filename blueprints/$JUPYTERHUB_BLUEPRINT.json \
+oc process --filename blueprints/$JUPYTERHUB_BLUEPRINT/resources.json \
     --param JUPYTERHUB_IMAGE_NAME="$JUPYTERHUB_IMAGE_NAME" \
     --param JUPYTERHUB_APP_NAME="$JUPYTERHUB_APP_NAME" \
     --param JUPYTERHUB_HOST_NAME="$JUPYTERHUB_HOST_NAME" \

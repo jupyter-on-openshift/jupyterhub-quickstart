@@ -71,10 +71,6 @@
                     {
                         "env": [
                             {
-                                "name": "JUPYTER_SERVICE_TYPE",
-                                "value": "jupyterhub-singleuser"
-                            },
-                            {
                                 "name": "JUPYTER_NOTEBOOK_USER",
                                 "value": "${JUPYTER_NOTEBOOK_USER}"
                             },
