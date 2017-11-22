@@ -42,4 +42,6 @@ for i in {0..30}; do
     fi
 done
 
+oc delete all --selector notebook=$NAME
+
 exit 1
