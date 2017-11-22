@@ -2,7 +2,13 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "jupyterhub"
+        "name": "jupyterhub",
+        "annotations": {
+            "openshift.io/display-name": "Jupyter Hub",
+            "description": "Jupyter Hub for launching Python Notebooks.",
+            "iconClass": "icon-python",
+            "tags": "python,jupyter"
+        }
     },
     "parameters": [
         {
