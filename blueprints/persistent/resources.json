@@ -38,6 +38,10 @@
             "required": true
         },
         {
+            "name": "JUPYTER_VOLUME_WORKSPACE",
+            "required": false
+        },
+        {
             "name": "JUPYTER_NOTEBOOK_PREFIX",
             "required": true
         },
@@ -114,6 +118,10 @@
                             {
                                 "name": "JUPYTERHUB_SERVICE_PREFIX",
                                 "value": "${JUPYTERHUB_SERVICE_PREFIX}"
+                            },
+                            {
+                                "name": "JUPYTER_VOLUME_WORKSPACE",
+                                "value": "${JUPYTER_VOLUME_WORKSPACE}"
                             },
                             {
                                 "name": "JUPYTER_NOTEBOOK_PREFIX",
