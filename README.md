@@ -9,11 +9,13 @@ oc create serviceaccount jupyterhub
 oc policy add-role-to-user edit -z jupyterhub
 ```
 
-Load image streams and templates for Jupyter Notebooks and JupyterHub.
+Load build configuration, image streams and templates for Jupyter Notebooks
+and JupyterHub.
 
 ```
-oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/master/openshift/images.json
-oc create -f https://raw.githubusercontent.com/getwarped/jupyter-notebooks/master/openshift/templates.json
-
-oc create -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/templates/jupyterhub.json
+oc apply -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/resources/notebook.json
+oc apply -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/resources/jupyterhub.json
 ```
+
+This will automatically trigger a build of a minimal Jupyter Notebook image
+using Python 3.5.

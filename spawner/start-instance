@@ -2,7 +2,7 @@
 
 set -x
 
-IMAGE=jupyter-notebook:3.5
+IMAGE=notebook:3.5
 
 SERVICE=$1
 NAME=$2

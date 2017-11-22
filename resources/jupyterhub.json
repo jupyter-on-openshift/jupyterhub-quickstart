@@ -12,7 +12,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE_NAME",
-            "value": "jupyter-notebook:3.5",
+            "value": "notebook:3.5",
             "required": true
         },
         {
