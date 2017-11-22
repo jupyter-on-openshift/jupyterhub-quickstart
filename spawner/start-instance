@@ -31,13 +31,15 @@ oc process --filename blueprints/$JUPYTERHUB_BLUEPRINT/resources.json \
     --param JUPYTER_CPU_LIMIT="$JUPYTER_CPU_LIMIT" | \
     oc apply --filename -
 
-while true; do
+for i in {0..30}; do
     sleep 1
 
     PODS=`oc get pod --selector notebook=$NAME \
       -o 'jsonpath={.items[?(@.status.phase=="Running")].metadata.name}'`
 
     if [ x"$PODS" = x"$NAME" ]; then
-        break
+        exit 0
     fi
 done
+
+exit 1
