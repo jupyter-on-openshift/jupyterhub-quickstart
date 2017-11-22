@@ -66,9 +66,8 @@
                     "type": "Source",
                     "sourceStrategy": {
                         "from": {
-                            "kind": "ImageStreamTag",
-                            "namespace": "openshift",
-                            "name": "python:3.5"
+                            "kind": "DockerImage",
+                            "name": "centos/python-35-centos7:latest"
                         }
                     }
                 },
