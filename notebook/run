@@ -38,7 +38,7 @@ fi
 
 # Copy files into volume if specified and change notebook directory.
 
-JUPYTER_NOTEBOOK_DIR=${JUPYTER_NOTEBOOK_DIR:-${WARPDRIVE_SRC_ROOT}}
+JUPYTER_NOTEBOOK_DIR=${JUPYTER_NOTEBOOK_DIR:-/opt/app-root/src}
 
 if [ x"${JUPYTER_VOLUME_ROOTDIR}" != x"" ]; then
     JUPYTER_VOLUME_WORKSPACE=${JUPYTER_VOLUME_WORKSPACE:-work}
