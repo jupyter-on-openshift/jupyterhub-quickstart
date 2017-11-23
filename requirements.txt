@@ -1,4 +1,5 @@
-jupyterhub<0.8.0
+jupyterhub==0.8.1
 jupyterhub-dummyauthenticator
 oauthenticator
 psycopg2
+jupyterhub-kubespawner==0.6.0

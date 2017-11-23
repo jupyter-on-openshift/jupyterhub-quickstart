@@ -1,10 +1,30 @@
 import os
 
 c.JupyterHub.port = 8080
+
+c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_port = 8081
+
 c.JupyterHub.proxy_api_port = 8082
-c.JupyterHub.spawner_class = 'spawner.OpenShiftSpawner'
+
+c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
+
 c.Spawner.http_timeout = 60
+
+c.Spawner.singleuser_image_spec = 'notebook:3.5'
+
+c.Spawner.singleuser_uid = os.getuid()
+c.Spawner.singleuser_fs_gid = os.getuid()
+
+c.Spawner.port = 8080
+
+c.Spawner.hub_connect_ip = os.environ['JUPYTERHUB_SERVICE_HOST']
+c.Spawner.hub_connect_port = 8081
+
+c.Spawner.cmd = ['jupyterhub-singleuser',
+        '--hub-api-url=http://%s:%d/hub/api' % (c.Spawner.hub_connect_ip,
+        c.Spawner.hub_connect_port)]
+
 c.JupyterHub.admin_access = True
 
 if os.environ.get('JUPYTERHUB_COOKIE_SECRET'):
@@ -17,7 +37,7 @@ if os.environ.get('JUPYTERHUB_DATABASE_PASSWORD'):
             os.environ['JUPYTERHUB_DATABASE_PASSWORD'],
             os.environ['JUPYTERHUB_DATABASE_HOST'])
 else:
-    c.JupyterHub.db_url = '/opt/app-root/data/jupyterhub.sqlite'
+    c.JupyterHub.db_url = '/opt/app-root/data/database.sqlite'
 
 
 if not os.environ.get('JUPYTERHUB_AUTHENTICATOR'):

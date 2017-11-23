@@ -264,6 +264,12 @@
                         "protocol": "TCP",
                         "port": 8080,
                         "targetPort": 8080
+                    },
+                    {
+                        "name": "8081-tcp",
+                        "protocol": "TCP",
+                        "port": 8081,
+                        "targetPort": 8081
                     }
                 ],
                 "selector": {

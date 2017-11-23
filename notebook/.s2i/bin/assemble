@@ -12,7 +12,7 @@ pip install powershift-cli[image]
 
 # Install base packages needed for running Jupyter Notebooks. 
 
-pip install jupyter 'jupyterhub<0.8.0' 'ipython[notebook]<6.0.0'
+pip install jupyter 'jupyterhub==0.8.1' 'ipython[notebook]<6.0.0'
 
 # This S2I assemble script is only used when creating the custom image.
 # For when running the image, or using it as a S2I builder, we use a second
