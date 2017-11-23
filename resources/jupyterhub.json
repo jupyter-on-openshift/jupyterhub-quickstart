@@ -17,21 +17,6 @@
             "required": true
         },
         {
-            "name": "JUPYTERHUB_IMAGE_NAME",
-            "value": "notebook:3.5",
-            "required": true
-        },
-        {
-            "name": "JUPYTER_MEMORY_LIMIT",
-            "value": "512Mi",
-            "required": true
-        },
-        {
-            "name": "JUPYTER_CPU_LIMIT",
-            "value": "500m",
-            "required": true
-        },
-        {
             "name": "DATABASE_PASSWORD",
             "generate": "expression",
             "from": "[a-zA-Z0-9]{16}",
@@ -175,14 +160,6 @@
                                         "value": "${JUPYTERHUB_IMAGE_NAME}"
                                     },
                                     {
-                                        "name": "JUPYTER_MEMORY_LIMIT",
-                                        "value": "${JUPYTER_MEMORY_LIMIT}"
-                                    },
-                                    {
-                                        "name": "JUPYTER_CPU_LIMIT",
-                                        "value": "${JUPYTER_CPU_LIMIT}"
-                                    },
-                                    {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
                                         "value": "${DATABASE_PASSWORD}"
                                     },
@@ -221,9 +198,6 @@
                 "name": "${JUPYTERHUB_APP_NAME}",
                 "labels": {
                     "app": "${JUPYTERHUB_APP_NAME}"
-                },
-                "annotations": {
-                    "service.alpha.openshift.io/dependencies": "[{\"name\":\"${JUPYTERHUB_APP_NAME}-db\",\"namespace\":\"\",\"kind\":\"Service\"}]"
                 }
             },
             "spec": {
@@ -354,11 +328,6 @@
                                             "-c",
                                             "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
                                         ]
-                                    }
-                                },
-                                "resources": {
-                                    "limits": {
-                                        "memory": "256Mi"
                                     }
                                 },
                                 "volumeMounts": [
