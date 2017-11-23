@@ -22,11 +22,6 @@
             "required": true
         },
         {
-            "name": "JUPYTERHUB_BLUEPRINT",
-            "value": "persistent",
-            "required": true
-        },
-        {
             "name": "JUPYTER_MEMORY_LIMIT",
             "value": "512Mi",
             "required": true
@@ -49,20 +44,10 @@
             "required": true
         },
         {
-            "name": "USER_AUTHENTICATOR",
-            "value": ""
-        },
-        {
-            "name": "OAUTH_CALLBACK_URL",
-            "value": ""
-        },
-        {
-            "name": "OAUTH_CLIENT_ID",
-            "value": ""
-        },
-        {
-            "name": "OAUTH_CLIENT_SECRET",
-            "value": ""
+            "name": "AUTHENTICATION_KEY",
+            "generate": "expression",
+            "from": "[a-f0-9]{32}",
+            "required": true
         },
         {
             "name": "USER_WHITELIST",
@@ -190,10 +175,6 @@
                                         "value": "${JUPYTERHUB_IMAGE_NAME}"
                                     },
                                     {
-                                        "name": "JUPYTERHUB_BLUEPRINT",
-                                        "value": "${JUPYTERHUB_BLUEPRINT}"
-                                    },
-                                    {
                                         "name": "JUPYTER_MEMORY_LIMIT",
                                         "value": "${JUPYTER_MEMORY_LIMIT}"
                                     },
@@ -214,20 +195,8 @@
                                         "value": "${COOKIE_SECRET}"
                                     },
                                     {
-                                        "name": "JUPYTERHUB_AUTHENTICATOR",
-                                        "value": "${USER_AUTHENTICATOR}"
-                                    },
-                                    {
-                                        "name": "OAUTH_CALLBACK_URL",
-                                        "value": "${OAUTH_CALLBACK_URL}"
-                                    },
-                                    {
-                                        "name": "OAUTH_CLIENT_ID",
-                                        "value": "${OAUTH_CLIENT_ID}"
-                                    },
-                                    {
-                                        "name": "OAUTH_CLIENT_SECRET",
-                                        "value": "${OAUTH_CLIENT_SECRET}"
+                                        "name": "JUPYTERHUB_AUTHENTICATION_KEY",
+                                        "value": "${AUTHENTICATION_KEY}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_USER_WHITELIST",
