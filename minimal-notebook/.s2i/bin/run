@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -eo pipefail
-
-#
-
-exec /opt/app-root/s2i/run

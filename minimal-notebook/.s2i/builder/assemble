@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -x
-
-set -eo pipefail
-
-/usr/libexec/s2i/assemble

@@ -1,2 +1,0 @@
-jupyterhub==0.8.1
-ipython[notebook]<6.0.0

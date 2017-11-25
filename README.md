@@ -5,7 +5,8 @@ Load build configuration, image streams and templates for Jupyter Notebooks
 and JupyterHub.
 
 ```
-oc apply -f https://raw.githubusercontent.com/getwarped/jupyter-spawner/master/resources.json
+oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/minimal-notebook/master/resources.json
+oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/resources.json
 ```
 
 This will automatically trigger a build of a minimal Jupyter Notebook image
