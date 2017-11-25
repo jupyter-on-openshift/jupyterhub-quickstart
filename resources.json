@@ -172,7 +172,7 @@
                 },
                 {
                     "name": "JUPYTERHUB_IMAGE",
-                    "value": "jupyterhub",
+                    "value": "jupyterhub:latest",
                     "required": true
                 },
                 {
@@ -191,20 +191,6 @@
                     "generate": "expression",
                     "from": "[a-f0-9]{32}",
                     "required": true
-                },
-                {
-                    "name": "AUTHENTICATION_KEY",
-                    "generate": "expression",
-                    "from": "[a-f0-9]{32}",
-                    "required": true
-                },
-                {
-                    "name": "USER_WHITELIST",
-                    "value": ""
-                },
-                {
-                    "name": "ADMIN_USERS",
-                    "value": ""
                 }
             ],
             "objects": [

@@ -43,16 +43,4 @@ if os.environ.get('JUPYTERHUB_DATABASE_PASSWORD'):
 else:
     c.JupyterHub.db_url = '/opt/app-root/data/database.sqlite'
 
-c.JupyterHub.authenticator_class = 'hashauthenticator.HashAuthenticator'
-c.HashAuthenticator.secret_key = os.environ.get(
-        'JUPYTERHUB_AUTHENTICATION_KEY', 'jupyterhub')
-
-whitelist = os.environ.get('JUPYTERHUB_USER_WHITELIST', '').strip()
-whitelist = whitelist and whitelist.split() or []
-
-c.Authenticator.whitelist = set(whitelist)
-
-admin_users = os.environ.get('JUPYTERHUB_ADMIN_USERS', '').strip()
-admin_users = admin_users and admin_users.split() or []
-
-c.Authenticator.admin_users = set(admin_users)
+c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
