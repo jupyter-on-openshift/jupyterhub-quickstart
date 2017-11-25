@@ -24,9 +24,9 @@ c.KubeSpawner.singleuser_fs_gid = os.getuid()
 
 c.KubeSpawner.cmd = ['jupyterhub-singleuser']
 c.KubeSpawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
-        c.Spawner.hub_connect_ip, c.Spawner.hub_connect_port)]
+        c.KubeSpawner.hub_connect_ip, c.KubeSpawner.hub_connect_port)]
 
-c.KubeSpawner.pod_name_template = '%s-nb-{username}' % c.Spawner.hub_connect_ip
+c.KubeSpawner.pod_name_template = '%s-nb-{username}' % c.KubeSpawner.hub_connect_ip
 
 c.JupyterHub.admin_access = True
 
