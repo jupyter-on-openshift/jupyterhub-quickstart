@@ -205,48 +205,6 @@
                     }
                 },
                 {
-                    "kind": "BuildConfig",
-                    "apiVersion": "v1",
-                    "metadata": {
-                        "name": "${APPLICATION_NAME}",
-                        "labels": {
-                            "app": "${APPLICATION_NAME}"
-                        }
-                    },
-                    "spec": {
-                        "triggers": [
-                            {
-                                "type": "ConfigChange"
-                            },
-                            {
-                                "type": "ImageChange",
-                                "imageChange": {}
-                            }
-                        ],
-                        "source": {
-                            "type": "Git",
-                            "git": {
-                                "uri": "https://github.com/getwarped/jupyter-spawner"
-                            }
-                        },
-                        "strategy": {
-                            "type": "Source",
-                            "sourceStrategy": {
-                                "from": {
-                                    "kind": "DockerImage",
-                                    "name": "centos/python-35-centos7:latest"
-                                }
-                            }
-                        },
-                        "output": {
-                            "to": {
-                                "kind": "ImageStreamTag",
-                                "name": "${APPLICATION_NAME}:latest"
-                            }
-                        }
-                    }
-                },
-                {
                     "kind": "DeploymentConfig",
                     "apiVersion": "v1",
                     "metadata": {
