@@ -9,24 +9,24 @@ c.JupyterHub.proxy_api_port = 8082
 
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
-c.Spawner.http_timeout = 60
+c.KubeSpawner.port = 8080
 
-c.Spawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+c.KubeSpawner.hub_connect_ip = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
+c.KubeSpawner.hub_connect_port = 8080
+
+c.KubeSpawner.http_timeout = 60
+
+c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
         'minimal-notebook:3.5')
 
-c.Spawner.singleuser_uid = os.getuid()
-c.Spawner.singleuser_fs_gid = os.getuid()
+c.KubeSpawner.singleuser_uid = os.getuid()
+c.KubeSpawner.singleuser_fs_gid = os.getuid()
 
-c.Spawner.port = 8080
-
-c.Spawner.hub_connect_ip = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
-c.Spawner.hub_connect_port = 8080
-
-c.Spawner.cmd = ['jupyterhub-singleuser']
-c.Spawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
+c.KubeSpawner.cmd = ['jupyterhub-singleuser']
+c.KubeSpawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
         c.Spawner.hub_connect_ip, c.Spawner.hub_connect_port)]
 
-c.Spawner.pod_name_template = '%s-nb-{username}' % c.Spawner.hub_connect_ip
+c.KubeSpawner.pod_name_template = '%s-nb-{username}' % c.Spawner.hub_connect_ip
 
 c.JupyterHub.admin_access = True
 
