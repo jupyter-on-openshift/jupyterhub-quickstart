@@ -8,7 +8,7 @@ pip install -U pip setuptools wheel
 
 # Install base packages needed for running JupyterHub.
 
-pip install -f /tmp/src/requirements.txt
+pip install -r /tmp/src/requirements.txt
 
 # Install npm packages required by JupyterHub.
 
