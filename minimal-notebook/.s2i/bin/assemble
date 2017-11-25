@@ -6,13 +6,9 @@ set -eo pipefail
 
 pip install -U pip setuptools wheel
 
-# Install 'powershift-cli[image]' package to add support for action hooks.
-
-pip install powershift-cli[image]
-
 # Install base packages needed for running Jupyter Notebooks. 
 
-pip install jupyter 'jupyterhub==0.8.1' 'ipython[notebook]<6.0.0'
+pip install -r /tmp/src/requirements.txt
 
 # This S2I assemble script is only used when creating the custom image.
 # For when running the image, or using it as a S2I builder, we use a second
@@ -22,13 +18,13 @@ pip install jupyter 'jupyterhub==0.8.1' 'ipython[notebook]<6.0.0'
 
 mkdir -p /opt/app-root/s2i
 
-mv /tmp/src/assemble /opt/app-root/s2i/assemble
-mv /tmp/src/run /opt/app-root/s2i/run
-mv /tmp/src/save-artifacts /opt/app-root/s2i/save-artifacts
+mv /tmp/src/.s2i/builder/assemble /opt/app-root/s2i/assemble
+mv /tmp/src/.s2i/builder/run /opt/app-root/s2i/run
+mv /tmp/src/.s2i/builder/save-artifacts /opt/app-root/s2i/save-artifacts
 
 mkdir -p /tmp/.s2i
 
-mv /tmp/src/image_metadata.json /tmp/.s2i/image_metadata.json
+mv /tmp/src/.s2i/builder/image_metadata.json /tmp/.s2i/image_metadata.json
 
 rm -rf /tmp/src
 

@@ -2,14 +2,6 @@
 
 set -eo pipefail
 
-# If a wheelhouse cache directory exists, the repository was used as
-# input to a wheelhouse build, to build Python wheels for required packages.
-# In this case fall through to executing the original 'run' script.
+#
 
-if [ -d /opt/app-root/wheelhouse ]; then
-    exec /opt/app-root/s2i/run
-fi
-
-# Run the deployment phase with support for action hooks.
-
-exec powershift image run
+exec /opt/app-root/s2i/run

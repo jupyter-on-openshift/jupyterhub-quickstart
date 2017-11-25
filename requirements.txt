@@ -1,4 +1,4 @@
-psycopg2
 jupyterhub==0.8.1
 jupyterhub-kubespawner==0.6.0
 jupyterhub-hashauthenticator
+psycopg2

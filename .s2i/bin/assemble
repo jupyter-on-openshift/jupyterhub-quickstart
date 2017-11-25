@@ -2,18 +2,48 @@
 
 set -eo pipefail
 
-# If a wheelhouse cache directory exists, the repository is being used as
-# input to a wheelhouse build, to build Python wheels for required packages.
-# In this case fall through to executing the original 'assemble' script.
+# Ensure we are using the latest pip and wheel packages.
 
-if [ -d /opt/app-root/wheelhouse ]; then
-    exec /opt/app-root/s2i/assemble
-fi
+pip install -U pip setuptools wheel
 
-# Install 'powershift-cli[image]' package to add support for action hooks.
+# Install base packages needed for running JupyterHub.
 
-pip install powershift-cli[image]
+pip install -f /tmp/src/requirements.txt
 
-# Run the build phase with support for action hooks.
+# Install npm packages required by JupyterHub.
 
-exec powershift image assemble
+echo " -----> Installing npm packages."
+
+npm install -g configurable-http-proxy
+
+# Copy global JupyterHub config into place.
+
+cp /tmp/src/jupyterhub_config.py /opt/app-root/etc/
+
+# This S2I assemble script is only used when creating the custom image.
+# For when running the image, or using it as a S2I builder, we use a second
+# set of custom S2I scripts. We now need to move these into the correct
+# location and have the custom image use those by dropping in an image
+# metadata file which overrides the labels of the base image.
+
+mkdir -p /opt/app-root/s2i
+
+mv /tmp/src/.s2i/builder/assemble /opt/app-root/s2i/assemble
+mv /tmp/src/.s2i/builder/run /opt/app-root/s2i/run
+mv /tmp/src/.s2i/builder/save-artifacts /opt/app-root/s2i/save-artifacts
+
+mkdir -p /tmp/.s2i
+
+mv /tmp/src/.s2i/builder/image_metadata.json /tmp/.s2i/image_metadata.json
+
+rm -rf /tmp/src
+
+# Create additional directories.
+
+echo " -----> Creating additional directories."
+
+mkdir -p /opt/app-root/data
+
+# Fixup permissions on directories and files.
+
+fix-permissions /opt/app-root

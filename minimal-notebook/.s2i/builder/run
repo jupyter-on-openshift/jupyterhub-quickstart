@@ -4,6 +4,10 @@ set -x
 
 set -eo pipefail
 
+if [ -f /opt/app-root/etc/generate_container_user ]; then
+    . /opt/app-root/etc/generate_container_user
+fi
+
 # Create a profile for 'notebook'. Add code for setting password for
 # the notebook from an environment variable.
 
