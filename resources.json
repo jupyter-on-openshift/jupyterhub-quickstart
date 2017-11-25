@@ -177,7 +177,7 @@
                 },
                 {
                     "name": "NOTEBOOK_IMAGE",
-                    "value": "minimal-notebook",
+                    "value": "minimal-notebook:3.5",
                     "required": true
                 },
                 {
