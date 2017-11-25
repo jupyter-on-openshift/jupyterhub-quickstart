@@ -11,7 +11,7 @@ c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
 c.Spawner.http_timeout = 60
 
-c.Spawner.singleuser_image_spec = os.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+c.Spawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
         'minimal-notebook:3.5')
 
 c.Spawner.singleuser_uid = os.getuid()
