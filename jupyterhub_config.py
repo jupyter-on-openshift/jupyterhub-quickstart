@@ -19,7 +19,7 @@ c.Spawner.singleuser_fs_gid = os.getuid()
 
 c.Spawner.port = 8080
 
-c.Spawner.hub_connect_ip = os.environ['JUPYTERHUB_SERVICE_HOST']
+c.Spawner.hub_connect_ip = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
 c.Spawner.hub_connect_port = 8080
 
 c.Spawner.cmd = ['jupyterhub-singleuser']

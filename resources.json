@@ -316,7 +316,7 @@
                                         ],
                                         "env": [
                                             {
-                                                "name": "APPLICATION_NAME",
+                                                "name": "JUPYTERHUB_SERVICE_NAME",
                                                 "value": "${APPLICATION_NAME}"
                                             },
                                             {
