@@ -230,7 +230,7 @@
                                     ],
                                     "from": {
                                         "kind": "ImageStreamTag",
-                                        "name": "${JUPYTERHUB_IMAGE}:latest"
+                                        "name": "${JUPYTERHUB_IMAGE}"
                                     }
                                 }
                             }
