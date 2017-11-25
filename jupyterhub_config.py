@@ -26,6 +26,8 @@ c.Spawner.cmd = ['jupyterhub-singleuser']
 c.Spawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
         c.Spawner.hub_connect_ip, c.Spawner.hub_connect_port)]
 
+c.Spawner.pod_name_template = '%s-nb-{username}' % c.Spawner.hub_connect_ip
+
 c.JupyterHub.admin_access = True
 
 if os.environ.get('JUPYTERHUB_COOKIE_SECRET'):
