@@ -6,109 +6,15 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "minimal-notebook",
-                "labels": {
-                    "build": "minimal-notebook"
-                },
-                "annotations": {
-                    "openshift.io/display-name": "Python Notebook / Builder",
-                    "description": "Python Notebook base application and S2I builder for custom notebooks.",
-                    "iconClass": "icon-python",
-                    "supports": "python:3.5,python",
-                    "tags": "builder,python,jupyter"
-                }
-            },
-            "spec": {
-                "lookupPolicy": {
-                    "local": true
-                },
-                "tags": [
-                    {
-                        "name": "3.5",
-                        "annotations": {
-                            "openshift.io/display-name": "Python Notebook / Builder (Python 3.5)",
-                            "description": "Python Notebook base application and S2I builder for custom notebooks, using Python 3.5.",
-                            "iconClass": "icon-python",
-                            "sampleRepo": "https://github.com/jakevdp/PythonDataScienceHandbook.git",
-                            "supports": "python:3.5,python",
-                            "tags": "builder,python,jupyter"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "minimal-notebook",
-                "labels": {
-                    "build": "minimal-notebook"
-                }
-            },
-            "spec": {
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange"
-                    }
-                ],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "https://github.com/getwarped/jupyter-spawner"
-                    },
-                    "contextDir": "minimal-notebook"
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "centos/python-35-centos7:latest"
-                        }
-                    }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "minimal-notebook:3.5"
-                    }
-                }
-            }
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
                 "name": "jupyterhub",
                 "labels": {
                     "build": "jupyterhub"
-                },
-                "annotations": {
-                    "openshift.io/display-name": "Jupyter Hub / Builder",
-                    "description": "JupyterHub base application and S2I builder for custom configurations.",
-                    "iconClass": "icon-python",
-                    "tags": "builder,python,jupyter"
                 }
             },
             "spec": {
                 "lookupPolicy": {
                     "local": true
-                },
-                "tags": [
-                    {
-                        "name": "latest",
-                        "annotations": {
-                            "openshift.io/display-name": "Jupyter Hub / Builder",
-                            "description": "JupyterHub base application and S2I builder for custom configurations.",
-                            "iconClass": "icon-python",
-                            "tags": "builder,python,jupyter"
-			}
-                    }
-                ]
+                }
             }
         },
         {
@@ -132,7 +38,7 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "https://github.com/getwarped/jupyter-spawner.git"
+                        "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git"
                     }
                 },
                 "strategy": {
@@ -156,10 +62,110 @@
             "kind": "Template",
             "apiVersion": "v1",
             "metadata": {
+                "name": "jupyterhub-builder",
+                "annotations": {
+                    "openshift.io/display-name": "JupyterHub Builder",
+                    "description": "Template for creating customised JupyterHub images.",
+                    "iconClass": "icon-python",
+                    "tags": "python,jupyter"
+                }
+            },
+            "parameters": [
+                {
+                    "name": "JUPYTERHUB_NAME",
+                    "value": "custom-jupyterhub",
+                    "required": true
+                },
+                {
+                    "name": "BUILDER_IMAGE",
+                    "value": "jupyterhub:latest",
+                    "required": true
+                },
+                {
+                    "name": "GIT_REPOSITORY_URL",
+                    "value": "",
+                    "required": true
+                },
+                {
+                    "name": "GIT_REFERENCE",
+                    "value": "master",
+                    "required": true
+                },
+                {
+                    "name": "CONTEXT_DIR",
+                    "value": "",
+                    "required": false
+                }
+            ],
+            "objects": [
+                {
+                    "kind": "ImageStream",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${JUPYTERHUB_NAME}",
+                        "labels": {
+                            "build": "${JUPYTERHUB_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "lookupPolicy": {
+                            "local": true
+                        }
+                    }
+                },
+                {
+                    "kind": "BuildConfig",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${JUPYTERHUB_NAME}",
+                        "labels": {
+                            "build": "${JUPYTERHUB_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "triggers": [
+                            {
+                                "type": "ConfigChange"
+                            },
+                            {
+                                "type": "ImageChange"
+                            }
+                        ],
+                        "source": {
+                            "type": "Git",
+                            "git": {
+                                "uri": "${GIT_REPOSITORY_URL}",
+                                "ref": "${GIT_REFERENCE}"
+                            },
+                            "contextDir": "${CONTEXT_DIR}"
+                        },
+                        "strategy": {
+                            "type": "Source",
+                            "sourceStrategy": {
+                                "from": {
+                                    "kind": "ImageStreamTag",
+                                    "name": "${BUILDER_IMAGE}"
+                                }
+                            }
+                        },
+                        "output": {
+                            "to": {
+                                "kind": "ImageStreamTag",
+                                "name": "${JUPYTERHUB_NAME}:latest"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "kind": "Template",
+            "apiVersion": "v1",
+            "metadata": {
                 "name": "jupyterhub",
                 "annotations": {
                     "openshift.io/display-name": "Jupyter Hub",
-                    "description": "Template for deploying customised Jupyter Hub instance with persistent session state.",
+                    "description": "Template for deploying a customised Jupyter Hub instance.",
                     "iconClass": "icon-python",
                     "tags": "python,jupyter"
                 }
@@ -190,6 +196,11 @@
                     "name": "COOKIE_SECRET",
                     "generate": "expression",
                     "from": "[a-f0-9]{32}",
+                    "required": true
+                },
+                {
+                    "name": "SERVICE_ACCOUNT",
+                    "value": "jupyterhub",
                     "required": true
                 }
             ],
@@ -294,7 +305,7 @@
                                         ]
                                     }
                                 ],
-                                "serviceAccountName": "jupyterhub"
+                                "serviceAccountName": "${SERVICE_ACCOUNT}"
                             }
                         }
                     }
