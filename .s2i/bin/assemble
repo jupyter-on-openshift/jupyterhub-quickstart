@@ -38,6 +38,10 @@ mv /tmp/src/.s2i/builder/image_metadata.json /tmp/.s2i/image_metadata.json
 
 rm -rf /tmp/src
 
+# Ensure passwd/group file intercept happens for any shell environment.
+
+echo "source /opt/app-root/etc/generate_container_user" >> /opt/app-root/etc/scl_enable
+
 # Create additional directories.
 
 echo " -----> Creating additional directories."

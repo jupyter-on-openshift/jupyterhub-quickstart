@@ -2,8 +2,8 @@
 
 set -x
 
-if [ -f /opt/app-root/etc/generate_container_user ]; then
-    . /opt/app-root/etc/generate_container_user
-fi
+set -eo pipefail
+
+# Start the JupyterHub instance.
 
 exec jupyterhub -f /opt/app-root/etc/jupyterhub_config.py
