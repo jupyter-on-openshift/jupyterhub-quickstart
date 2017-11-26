@@ -49,3 +49,11 @@ else:
     c.JupyterHub.db_url = '/opt/app-root/data/database.sqlite'
 
 c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
+
+# Load user provided configuration to override default settings.
+
+user_config_file = '/opt/app-root/src/jupyterhub_config.py'
+
+if os.path.exists(user_config_file):
+    with open(user_config_file) as fp:
+        exec(compile(fp.read(), user_config_file, 'exec'), globals())
