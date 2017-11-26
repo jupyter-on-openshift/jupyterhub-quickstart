@@ -187,6 +187,11 @@
                     "required": true
                 },
                 {
+                    "name": "INTERFACE_TYPE",
+                    "value": "classic",
+                    "required": true
+                },
+                {
                     "name": "DATABASE_PASSWORD",
                     "generate": "expression",
                     "from": "[a-zA-Z0-9]{16}",
@@ -277,6 +282,10 @@
                                             {
                                                 "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
                                                 "value": "${NOTEBOOK_IMAGE}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_INTERFACE_TYPE",
+                                                "value": "${INTERFACE_TYPE}"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",

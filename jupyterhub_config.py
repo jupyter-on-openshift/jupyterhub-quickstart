@@ -22,7 +22,12 @@ c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE'
 c.KubeSpawner.singleuser_uid = os.getuid()
 c.KubeSpawner.singleuser_fs_gid = os.getuid()
 
-c.KubeSpawner.cmd = ['jupyterhub-singleuser']
+if os.environ.get('JUPYTERHUB_INTERFACE_TYPE') == 'lab':
+    c.KubeSpawner.default_url = '/lab'
+    c.KubeSpawner.cmd = ['jupyter', 'labhub']
+else:
+    c.KubeSpawner.cmd = ['jupyterhub-singleuser']
+
 c.KubeSpawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
         c.KubeSpawner.hub_connect_ip, c.KubeSpawner.hub_connect_port)]
 
