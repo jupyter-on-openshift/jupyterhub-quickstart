@@ -2,8 +2,8 @@
   "labels": [
     {"io.k8s.display-name":"JupyterHub"},
     {"io.k8s.description":"JupyterHub."},
-    {"io.openshift.s2i.scripts-url":"image:///opt/app-root/s2i"},
-    {"io.s2i.scripts-url":"image:///opt/app-root/s2i"},
+    {"io.openshift.s2i.scripts-url":"image:///opt/app-root/builder"},
+    {"io.s2i.scripts-url":"image:///opt/app-root/builder"},
     {"io.openshift.expose-services":"8080:http,8081:http"},
     {"io.openshift.tags":"builder,python,jupyter"}
   ]

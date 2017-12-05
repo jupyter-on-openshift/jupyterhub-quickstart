@@ -249,6 +249,23 @@
                                 }
                             },
                             "spec": {
+                                "initContainers": [
+                                    {
+                                        "name": "wait-for-database",
+                                        "image": "${JUPYTERHUB_IMAGE}",
+                                        "command": [ "/opt/app-root/scripts/wait-for-database" ],
+                                        "env": [
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                                "value": "${DATABASE_PASSWORD}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_HOST",
+                                                "value": "${APPLICATION_NAME}-db"
+                                            }
+                                        ]
+                                    }
+                                ],
                                 "containers": [
                                     {
                                         "name": "${APPLICATION_NAME}",

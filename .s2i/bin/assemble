@@ -26,15 +26,13 @@ cp /tmp/src/jupyterhub_config.py /opt/app-root/etc/
 # location and have the custom image use those by dropping in an image
 # metadata file which overrides the labels of the base image.
 
-mkdir -p /opt/app-root/s2i
-
-mv /tmp/src/.s2i/builder/assemble /opt/app-root/s2i/assemble
-mv /tmp/src/.s2i/builder/run /opt/app-root/s2i/run
-mv /tmp/src/.s2i/builder/save-artifacts /opt/app-root/s2i/save-artifacts
-
 mkdir -p /tmp/.s2i
 
-mv /tmp/src/.s2i/builder/image_metadata.json /tmp/.s2i/image_metadata.json
+mv /tmp/src/builder/image_metadata.json /tmp/.s2i/image_metadata.json
+
+mv /tmp/src/builder /opt/app-root/builder
+
+mv /tmp/src/scripts /opt/app-root/scripts
 
 rm -rf /tmp/src
 

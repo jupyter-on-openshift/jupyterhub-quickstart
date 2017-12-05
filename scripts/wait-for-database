@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -x
+
+while true; do
+    psql "postgresql://jupyterhub:$JUPYTERHUB_DATABASE_PASSWORD@$JUPYTERHUB_DATABASE_HOST:5432/jupyterhub" -q -c 'SELECT 1'
+    if [ $? -eq 0 ]; then
+        exit 0
+    fi
+    sleep 1
+done
