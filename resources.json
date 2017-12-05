@@ -173,7 +173,7 @@
             "parameters": [
                 {
                     "name": "APPLICATION_NAME",
-                    "value": "hub",
+                    "value": "jupyterhub",
                     "required": true
                 },
                 {
