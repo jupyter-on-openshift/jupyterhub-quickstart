@@ -206,16 +206,6 @@
             ],
             "objects": [
                 {
-                    "kind": "ImageStream",
-                    "apiVersion": "v1",
-                    "metadata": {
-                        "name": "${APPLICATION_NAME}",
-                        "labels": {
-                            "app": "${APPLICATION_NAME}"
-                        }
-                    }
-                },
-                {
                     "kind": "DeploymentConfig",
                     "apiVersion": "v1",
                     "metadata": {
