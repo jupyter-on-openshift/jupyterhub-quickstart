@@ -298,18 +298,6 @@
                                             {
                                                 "name": "JUPYTERHUB_COOKIE_SECRET",
                                                 "value": "${COOKIE_SECRET}"
-                                            },
-                                            {
-                                                "name": "JUPYTERHUB_AUTHENTICATION_KEY",
-                                                "value": "${AUTHENTICATION_KEY}"
-                                            },
-                                            {
-                                                "name": "JUPYTERHUB_USER_WHITELIST",
-                                                "value": "${USER_WHITELIST}"
-                                            },
-                                            {
-                                                "name": "JUPYTERHUB_ADMIN_USERS",
-                                                "value": "${ADMIN_USERS}"
                                             }
                                         ]
                                     }
