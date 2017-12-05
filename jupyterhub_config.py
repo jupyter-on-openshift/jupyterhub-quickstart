@@ -1,5 +1,8 @@
 import os
 
+service_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
+notebook_image = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE', 'minimal-notebook:3.5')
+
 c.JupyterHub.port = 8080
 
 c.JupyterHub.hub_ip = '0.0.0.0'
@@ -11,13 +14,14 @@ c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
 c.KubeSpawner.port = 8080
 
-c.KubeSpawner.hub_connect_ip = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
+c.KubeSpawner.hub_connect_ip = service_name
 c.KubeSpawner.hub_connect_port = 8080
 
 c.KubeSpawner.http_timeout = 60
 
-c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
-        'minimal-notebook:3.5')
+c.KubeSpawner.singleuser_image_spec = notebook_image
+
+c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
 
 c.KubeSpawner.singleuser_uid = os.getuid()
 c.KubeSpawner.singleuser_fs_gid = os.getuid()
