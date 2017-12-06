@@ -197,11 +197,6 @@
                     "generate": "expression",
                     "from": "[a-f0-9]{32}",
                     "required": true
-                },
-                {
-                    "name": "SERVICE_ACCOUNT",
-                    "value": "jupyterhub",
-                    "required": true
                 }
             ],
             "objects": [
@@ -300,7 +295,7 @@
                                         ]
                                     }
                                 ],
-                                "serviceAccountName": "${SERVICE_ACCOUNT}"
+                                "serviceAccountName": "jupyterhub"
                             }
                         }
                     }
