@@ -100,7 +100,7 @@ Access the host from a browser and a Jupyter notebook instance will be automatic
 To see a list of the pods corresponding to the notebook instances, run:
 
 ```
-oc get pods --selector component=singleuser-server
+oc get pods --selector app=jupyterhub,component=singleuser-server
 ```
 
 This should yield results similar to:
