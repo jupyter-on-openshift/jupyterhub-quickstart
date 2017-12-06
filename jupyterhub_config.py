@@ -50,10 +50,18 @@ else:
 
 c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
-# Load user provided configuration to override default settings.
+# Load configuration included in the image.
 
-user_config_file = '/opt/app-root/src/jupyterhub_config.py'
+image_config_file = '/opt/app-root/src/jupyterhub_config.py'
 
-if os.path.exists(user_config_file):
-    with open(user_config_file) as fp:
-        exec(compile(fp.read(), user_config_file, 'exec'), globals())
+if os.path.exists(image_config_file):
+    with open(image_config_file) as fp:
+        exec(compile(fp.read(), image_config_file, 'exec'), globals())
+
+# Load configuration provided via the environment.
+
+environ_config_file = '/opt/app-root/configs/jupyterhub_config.py'
+
+if os.path.exists(environ_config_file):
+    with open(environ_config_file) as fp:
+        exec(compile(fp.read(), environ_config_file, 'exec'), globals())
