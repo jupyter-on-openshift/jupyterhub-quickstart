@@ -13,7 +13,7 @@ The first step in deploying JupyterHub is to prepare the notebook images and the
 To create a minimal Jupyter notebook image, run:
 
 ```
-oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/resources.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/resources.json
 ```
 
 This will create a build configuration in your OpenShift project to build the minimal Jupyter notebook image using the Python 3.5 S2I builder. You can watch the progress of the build by running:
@@ -31,7 +31,7 @@ For more detailed instructions on creating the minimal Jupyter notebook image, a
 To create the JupyterHub image, run:
 
 ```
-oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/resources.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/resources.json
 ```
 
 This will create a build configuration in your OpenShift project to build a JupyterHub image using the Python 3.5 S2I builder. You can watch the progress of the build by running:
