@@ -187,6 +187,11 @@
                     "required": true
                 },
                 {
+                    "name": "JUPYTERHUB_CONFIG",
+                    "value": "",
+                    "required": false
+                },
+                {
                     "name": "DATABASE_PASSWORD",
                     "generate": "expression",
                     "from": "[a-zA-Z0-9]{16}",
@@ -200,6 +205,19 @@
                 }
             ],
             "objects": [
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-cfg",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "data": {
+                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
+                    }
+                },
                 {
                     "kind": "DeploymentConfig",
                     "apiVersion": "v1",
@@ -244,6 +262,7 @@
                                 }
                             },
                             "spec": {
+                                "serviceAccountName": "jupyterhub",
                                 "initContainers": [
                                     {
                                         "name": "wait-for-database",
@@ -292,10 +311,24 @@
                                                 "name": "JUPYTERHUB_COOKIE_SECRET",
                                                 "value": "${COOKIE_SECRET}"
                                             }
+                                        ],
+                                        "volumeMounts": [
+                                            {
+                                                "name": "config",
+                                                "mountPath": "/opt/app-root/configs"
+                                            }
                                         ]
                                     }
                                 ],
-                                "serviceAccountName": "jupyterhub"
+                                "volumes": [
+                                    {
+                                        "name": "config",
+                                        "configMap": {
+                                            "name": "${APPLICATION_NAME}-cfg",
+                                            "defaultMode": 420
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -452,6 +485,13 @@
                                         "name": "data",
                                         "persistentVolumeClaim": {
                                             "claimName": "${APPLICATION_NAME}-db"
+                                        }
+                                    },
+                                    {
+                                        "name": "config",
+                                        "configMap": {
+                                            "name": "${APPLICATION_NAME}-cfg",
+                                            "defaultMode": 420
                                         }
                                     }
                                 ]
