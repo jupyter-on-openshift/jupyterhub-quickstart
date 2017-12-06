@@ -142,3 +142,8 @@ To delete the JupyterHub instance along with all notebook instances, run:
 ```
 oc delete all,pvc --selector app=jakevdp
 ```
+
+Using the OpenShift Web Console
+-------------------------------
+
+JupyterHub can also be deployed from the web console by selecting _Browse Catalog_ from the _Add to Project_ menu, filtering on +jupyter+ and then choosing _JupyterHub_.
