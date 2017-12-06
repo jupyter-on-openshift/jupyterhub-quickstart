@@ -10,7 +10,21 @@ Preparing the Jupyter Images
 
 The first step in deploying JupyterHub is to prepare the notebook images and the image for JupyterHub. Because the images provided by the Jupyter project will not run correctly in a multitenant Kubernetes cluster, such as OpenShift, with full role based access control enabled and where applications must run as a user ID specific to a project, it is necessary to create images which will work.
 
-To create at least the minimal Jupyter notebook image, following the instructions in:
+To create a minimal Jupyter notebook image, run:
+
+```
+oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/resources.json
+```
+
+This will create a build configuration in your OpenShift project to build the minimal Jupyter notebook image using the Python 3.5 S2I builder. You can watch the progress of the build by running:
+
+```
+oc logs --follow bc/minimal-notebook
+```
+
+A tagged image ``minimal-notebook:3.5`` should be created in your project.
+
+For more detailed instructions on creating the minimal Jupyter notebook image, and how to create custom notebook images, read:
 
 * https://github.com/jupyter-on-openshift/jupyter-notebooks
 
@@ -97,3 +111,34 @@ jupyterhub-nb-5b7eac5d-2da834-2d4219-2dac19-2dad7f2ee00e30   1/1       Running  
 ```
 
 As this configuration doesn't provide access to the admin panel in JupyterHub, you can forcibly stop a notebook instance by running ``oc delete pod`` on the specific pod instance.
+
+To delete the JupyterHub instance along with all notebook instances, run:
+
+```
+oc delete all,pvc --selector app=jupyterhub
+```
+
+Deploying with a Custom Notebook Image
+--------------------------------------
+
+To deploy JupyterHub using a custom notebook image, run:
+
+```
+oc new-app --template jupyterhub \
+  --param APPLICATION_NAME=jakevdp \
+  --param NOTEBOOK_IMAGE=jakevdp-notebook:latest
+```
+
+Because ``APPLICATION_NAME`` was supplied, the JupyterHub instance and notebooks in this case will all be labelled with ``jakevdp``.
+
+To get the hostname assigned for the JupyterHub instance, run:
+
+```
+oc get route/jakevdp
+```
+
+To delete the JupyterHub instance along with all notebook instances, run:
+
+```
+oc delete all,pvc --selector app=jakevdp
+```
