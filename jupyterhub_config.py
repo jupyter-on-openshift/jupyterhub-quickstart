@@ -21,7 +21,8 @@ c.KubeSpawner.http_timeout = 60
 
 c.KubeSpawner.singleuser_image_spec = notebook_image
 
-c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
+c.KubeSpawner.singleuser_extra_labels = {
+        'app': service_name, 'component': 'notebook' }
 
 c.KubeSpawner.singleuser_uid = os.getuid()
 c.KubeSpawner.singleuser_fs_gid = os.getuid()
