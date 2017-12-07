@@ -162,7 +162,7 @@
             "kind": "Template",
             "apiVersion": "v1",
             "metadata": {
-                "name": "jupyterhub",
+                "name": "jupyterhub-deployer",
                 "annotations": {
                     "openshift.io/display-name": "Jupyter Hub",
                     "description": "Template for deploying a customised Jupyter Hub instance.",
