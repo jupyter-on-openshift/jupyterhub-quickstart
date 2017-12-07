@@ -164,8 +164,8 @@
             "metadata": {
                 "name": "jupyterhub-deployer",
                 "annotations": {
-                    "openshift.io/display-name": "Jupyter Hub",
-                    "description": "Template for deploying a customised Jupyter Hub instance.",
+                    "openshift.io/display-name": "JupyterHub",
+                    "description": "Template for deploying a JupyterHub instance.",
                     "iconClass": "icon-python",
                     "tags": "python,jupyter"
                 }
@@ -550,7 +550,7 @@
             "metadata": {
                 "name": "jupyterhub-quickstart",
                 "annotations": {
-                    "openshift.io/display-name": "Jupyter Hub Quickstart",
+                    "openshift.io/display-name": "JupyterHub Quickstart",
                     "description": "Template for creating and deploying customised Jupyter notebook images using Jupyter Hub.",
                     "iconClass": "icon-python",
                     "tags": "python,jupyter"
