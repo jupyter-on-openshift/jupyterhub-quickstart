@@ -543,6 +543,465 @@
                     }
                 }
             ]
+        },
+        {
+            "kind": "Template",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jupyterhub-quickstart",
+                "annotations": {
+                    "openshift.io/display-name": "Jupyter Hub Quickstart",
+                    "description": "Template for creating and deploying customised Jupyter notebook images using Jupyter Hub.",
+                    "iconClass": "icon-python",
+                    "tags": "python,jupyter"
+                }
+            },
+            "parameters": [
+                {
+                    "name": "APPLICATION_NAME",
+                    "value": "jupyterhub",
+                    "required": true
+                },
+                {
+                    "name": "JUPYTERHUB_IMAGE",
+                    "value": "jupyterhub:latest",
+                    "required": true
+                },
+                {
+                    "name": "BUILDER_IMAGE",
+                    "value": "minimal-notebook:3.5",
+                    "required": true
+                },
+                {
+                    "name": "GIT_REPOSITORY_URL",
+                    "value": "",
+                    "required": true
+                },
+                {
+                    "name": "GIT_REFERENCE",
+                    "value": "master",
+                    "required": true
+                },
+                {
+                    "name": "CONTEXT_DIR",
+                    "value": "",
+                    "required": false
+                },
+                {
+                    "name": "JUPYTERHUB_CONFIG",
+                    "value": "",
+                    "required": false
+                },
+                {
+                    "name": "DATABASE_PASSWORD",
+                    "generate": "expression",
+                    "from": "[a-zA-Z0-9]{16}",
+                    "required": true
+                },
+                {
+                    "name": "COOKIE_SECRET",
+                    "generate": "expression",
+                    "from": "[a-f0-9]{32}",
+                    "required": true
+                }
+            ],
+            "objects": [
+                {
+                    "kind": "ImageStream",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-nb",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "lookupPolicy": {
+                            "local": true
+                        }
+                    }
+                },
+                {
+                    "kind": "BuildConfig",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-nb",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "triggers": [
+                            {
+                                "type": "ConfigChange"
+                            },
+                            {
+                                "type": "ImageChange"
+                            }
+                        ],
+                        "source": {
+                            "type": "Git",
+                            "git": {
+                                "uri": "${GIT_REPOSITORY_URL}",
+                                "ref": "${GIT_REFERENCE}"
+                            },
+                            "contextDir": "${CONTEXT_DIR}"
+                        },
+                        "strategy": {
+                            "type": "Source",
+                            "sourceStrategy": {
+                                "from": {
+                                    "kind": "ImageStreamTag",
+                                    "name": "${BUILDER_IMAGE}"
+                                }
+                            }
+                        },
+                        "output": {
+                            "to": {
+                                "kind": "ImageStreamTag",
+                                "name": "${APPLICATION_NAME}-nb:latest"
+                            }
+                        }
+                    }
+                },
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-cfg",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "data": {
+                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
+                    }
+                },
+                {
+                    "kind": "DeploymentConfig",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "strategy": {
+                            "type": "Recreate"
+                        },
+                        "triggers": [
+                            {
+                                "type": "ConfigChange"
+                            },
+                            {
+                                "type": "ImageChange",
+                                "imageChangeParams": {
+                                    "automatic": true,
+                                    "containerNames": [
+                                        "${APPLICATION_NAME}"
+                                    ],
+                                    "from": {
+                                        "kind": "ImageStreamTag",
+                                        "name": "${JUPYTERHUB_IMAGE}"
+                                    }
+                                }
+                            }
+                        ],
+                        "replicas": 1,
+                        "selector": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
+                        },
+                        "template": {
+                            "metadata": {
+                                "labels": {
+                                    "app": "${APPLICATION_NAME}",
+                                    "deploymentconfig": "${APPLICATION_NAME}"
+                                }
+                            },
+                            "spec": {
+                                "serviceAccountName": "jupyterhub",
+                                "initContainers": [
+                                    {
+                                        "name": "wait-for-database",
+                                        "image": "${JUPYTERHUB_IMAGE}",
+                                        "command": [ "/opt/app-root/scripts/wait-for-database" ],
+                                        "env": [
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                                "value": "${DATABASE_PASSWORD}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_HOST",
+                                                "value": "${APPLICATION_NAME}-db"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "containers": [
+                                    {
+                                        "name": "${APPLICATION_NAME}",
+                                        "image": "${APPLICATION_NAME}:latest",
+                                        "ports": [
+                                            {
+                                                "containerPort": 8080,
+                                                "protocol": "TCP"
+                                            }
+                                        ],
+                                        "env": [
+                                            {
+                                                "name": "JUPYTERHUB_SERVICE_NAME",
+                                                "value": "${APPLICATION_NAME}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
+                                                "value": "${APPLICATION_NAME}-nb"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                                "value": "${DATABASE_PASSWORD}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_HOST",
+                                                "value": "${APPLICATION_NAME}-db"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_COOKIE_SECRET",
+                                                "value": "${COOKIE_SECRET}"
+                                            }
+                                        ],
+                                        "volumeMounts": [
+                                            {
+                                                "name": "config",
+                                                "mountPath": "/opt/app-root/configs"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "config",
+                                        "configMap": {
+                                            "name": "${APPLICATION_NAME}-cfg",
+                                            "defaultMode": 420
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "ports": [
+                            {
+                                "name": "8080-tcp",
+                                "protocol": "TCP",
+                                "port": 8080,
+                                "targetPort": 8080
+                            },
+                            {
+                                "name": "8081-tcp",
+                                "protocol": "TCP",
+                                "port": 8081,
+                                "targetPort": 8081
+                            }
+                        ],
+                        "selector": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
+                        }
+                    }
+                },
+                {
+                    "kind": "Route",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "host": "",
+                        "to": {
+                            "kind": "Service",
+                            "name": "${APPLICATION_NAME}",
+                            "weight": 100
+                        },
+                        "port": {
+                            "targetPort": "8080-tcp"
+                        },
+                        "tls": {
+                            "termination": "edge",
+                            "insecureEdgeTerminationPolicy": "Redirect"
+                        }
+                    }
+                },
+                {
+                    "kind": "PersistentVolumeClaim",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-db",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "accessModes": [
+                            "ReadWriteOnce"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "storage": "1Gi"
+                            }
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "v1",
+                    "kind": "DeploymentConfig",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-db",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "replicas": 1,
+                        "selector": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}-db"
+                        },
+                        "strategy": {
+                            "type": "Recreate"
+                        },
+                        "template": {
+                            "metadata": {
+                                "labels": {
+                                    "app": "${APPLICATION_NAME}",
+                                    "deploymentconfig": "${APPLICATION_NAME}-db"
+                                }
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "name": "postgresql",
+                                        "env": [
+                                            {
+                                                "name": "POSTGRESQL_USER",
+                                                "value": "jupyterhub"
+                                            },
+                                            {
+                                                "name": "POSTGRESQL_PASSWORD",
+                                                "value": "${DATABASE_PASSWORD}"
+                                            },
+                                            {
+                                                "name": "POSTGRESQL_DATABASE",
+                                                "value": "jupyterhub"
+                                            }
+                                        ],
+                                        "livenessProbe": {
+                                            "tcpSocket": {
+                                                "port": 5432
+                                            }
+                                        },
+                                        "ports": [
+                                            {
+                                                "containerPort": 5432,
+                                                "protocol": "TCP"
+                                            }
+                                        ],
+                                        "readinessProbe": {
+                                            "exec": {
+                                                "command": [
+                                                    "/bin/sh",
+                                                    "-i",
+                                                    "-c",
+                                                    "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
+                                                ]
+                                            }
+                                        },
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/var/lib/pgsql/data",
+                                                "name": "data"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "data",
+                                        "persistentVolumeClaim": {
+                                            "claimName": "${APPLICATION_NAME}-db"
+                                        }
+                                    },
+                                    {
+                                        "name": "config",
+                                        "configMap": {
+                                            "name": "${APPLICATION_NAME}-cfg",
+                                            "defaultMode": 420
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "triggers": [
+                            {
+                                "imageChangeParams": {
+                                    "automatic": true,
+                                    "containerNames": [
+                                        "postgresql"
+                                    ],
+                                    "from": {
+                                        "kind": "ImageStreamTag",
+                                        "name": "postgresql:9.5",
+                                        "namespace": "openshift"
+                                    }
+                                },
+                                "type": "ImageChange"
+                            },
+                            {
+                                "type": "ConfigChange"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-db",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "ports": [
+                            {
+                                "name": "5432-tcp",
+                                "protocol": "TCP",
+                                "port": 5432,
+                                "targetPort": 5432
+                            }
+                        ],
+                        "selector": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}-db"
+                        }
+                    }
+                }
+            ]
         }
     ]
 }
