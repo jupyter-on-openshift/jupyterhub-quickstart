@@ -1,8 +1,5 @@
 import os
 
-from kubespawner import KubeSpawner
-from traitlets import default, Unicode, List
-
 service_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
 
 c.JupyterHub.port = 8080
@@ -23,6 +20,10 @@ c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
 
 c.KubeSpawner.singleuser_uid = os.getuid()
 c.KubeSpawner.singleuser_fs_gid = os.getuid()
+
+c.KubeSpawner.singleuser_extra_annotations = {
+    "alpha.image.policy.openshift.io/resolve-names": "*"
+}
 
 c.KubeSpawner.cmd = ['jupyterhub-singleuser']
 
@@ -48,68 +49,16 @@ else:
 
 c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
-class KubeProfileSpawner(KubeSpawner):
+c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
-    profiles = List(
-        trait = Unicode(),
-        default_value = ['minimal-notebook:3.5'],
-        minlen = 1,
-        config = True,
-        help = "Profiles for images available to deploy."
-    )
+default_profiles = []
 
-    form_template = Unicode("""
-        <label for="profile">Select an image profile:</label>
-        <select class="form-control" name="profile" required autofocus>
-            {option_template}
-        </select>""",
-        config = True, help = "Form template."
-    )
+for (name in os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+        'minimal-notebook:3.5').split(',')):
+    default_profiles.append((name, name, 'kubespawner.KubeSpawner',
+            dict(singleuser_image_spec='minimal-notebook:3.5')))
 
-    option_template = Unicode("""
-        <option value="{profile}">{profile}</option>""",
-        config = True, help = "Template for html form options."
-    )
-
-    @default('options_form')
-    def _options_form(self):
-        """Return the form with the drop-down menu."""
-        options = ''.join([
-            self.option_template.format(profile=di) for di in self.profiles
-        ])
-        return self.form_template.format(option_template=options)
-
-    def options_from_form(self, formdata):
-        """Parse the submitted form data and turn it into the correct
-           structures for self.user_options."""
-
-        formdata = dict(super(KubeProfileSpawner,
-                self).options_from_form(formdata))
-
-        default = self.profiles[0]
-        profile = formdata.get('profile', [default])[0]
-
-        if profile not in self.profiles:
-            profile = default
-
-        formdata.update(dict(profile=profile))
-
-        return formdata
-
-    def start(self):
-        self.singleuser_image_spec = self.user_options['profile']
-        return super(KubeProfileSpawner, self).start()
-
-notebook_images = [name.strip() for name in
-        os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
-	'minimal-notebook:3.5').split(',')]
-
-if len(notebook_images) == 1:
-    c.KubeSpawner.singleuser_image_spec = notebook_images[0]
-    c.JupyterHub.spawner_class = KubeSpawner
-else:
-    c.KubeProfileSpawner.profiles = notebook_images
-    c.JupyterHub.spawner_class = KubeProfileSpawner
+c.ProfilesSpawner.profiles = default_profiles
 
 # Load configuration included in the image.
 
