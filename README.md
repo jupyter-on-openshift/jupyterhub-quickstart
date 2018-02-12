@@ -19,10 +19,10 @@ oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-note
 This will create a build configuration in your OpenShift project to build the images using the Python 3.5 S2I builder. You can watch the progress of the build for the minla Jupyter notebook image by running:
 
 ```
-oc logs --follow bc/minimal-notebook
+oc logs --follow bc/s2i-minimal-notebook
 ```
 
-A tagged image ``minimal-notebook:3.5`` should be created in your project.
+A tagged image ``s2i-minimal-notebook:3.5`` should be created in your project.
 
 For more detailed instructions on creating the minimal Jupyter notebook image, and how to create custom notebook images, read:
 
@@ -80,7 +80,7 @@ edit  /edit                jupyterhub
 Creating the JupyterHub Deployment
 ----------------------------------
 
-To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``minimal-notebook:3.5`` image, run:
+To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``s2i-minimal-notebook:3.5`` image, run:
 
 ```
 oc new-app --template jupyterhub-deployer
