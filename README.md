@@ -156,6 +156,11 @@ To delete the JupyterHub instance along with all notebook instances, run:
 oc delete all,configmap,pvc --selector app=jakevdp
 ```
 
+Using the OpenShift Web Console
+-------------------------------
+
+JupyterHub can also be deployed from the web console by selecting _Browse Catalog_ from the _Add to Project_ menu, filtering on _jupyter_ and choosing the appropriate template.
+
 Customising the JupyterHub Deployment
 -------------------------------------
 
@@ -197,7 +202,106 @@ oc rollout latest dc/jakevdp
 
 Note that triggering a new deployment will result in any running notebook instances being shutdown, and users will need to start up a new notebook instance through the JupyterHub interface.
 
-Using the OpenShift Web Console
--------------------------------
+Providing a Selection of Images to Deploy
+-----------------------------------------
 
-JupyterHub can also be deployed from the web console by selecting _Browse Catalog_ from the _Add to Project_ menu, filtering on _jupyter_ and choosing the appropriate template.
+When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of image, the value passed for ``NOTEBOOK_IMAGE`` can be a comma separated list of image names. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
+
+When multiple choices are available, the user can still only have one notebook instance running at a time. If they want to switch which image they are using, they need to use the _Control Panel_ in the JupyterHub web interface to stop the existing notebook instance. They can then start a new instance with a different image.
+
+The name of image should be the name of the image stream in the same project JupyterHub is deployed, including an image tag if not ``latest``, or can be the full image name identifying an image on a remote image registry.
+
+If you want the name displayed for an image in the web interface when choosing the image, to be different to the image name, you will need to specify the set of images from the JupyterHub configuration.
+
+```
+c.ProfilesSpawner.profiles = [
+    (
+        "Minimal Notebook (CentOS 7 / Python 3.5)",
+        's2i-minimal-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='s2i-minimal-notebook:3.5')
+    ),
+    (
+        "SciPy Notebook (CentOS 7 / Python 3.5)",
+        's2i-scipy-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='s2i-scipy-notebook:3.5')
+    ),
+    (
+        "Tensorflow Notebook (CentOS 7 / Python 3.5)",
+        's2i-tensorflow-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='s2i-tensorflow-notebook:3.5')
+    )
+]
+```
+
+This will override any images listed in the ``NOTEBOOK_IMAGE`` template parameter.
+
+The first value in the tuple for an image is the display name. The second value is a unique key identifying the selection. The third value should always be ``kubespawner.KubeSpawner``. The final value is a dictionary with the settings to be applied to the spawner when deploying the image.
+
+In this case, the ``singleuser_image_spec`` setting should be set to the name for the deployed image. This dictionary can be used to set other per image specific settings if required.
+
+Using the Jupyter Project Notebook Images
+-----------------------------------------
+
+The official Jupyter Project notebook images:
+
+* jupyter/base-notebook
+* jupyter/r-notebook
+* jupyter/minimal-notebook
+* jupyter/scipy-notebook
+* jupyter/tensorflow-notebook
+* jupyter/datascience-notebook
+* jupyter/pyspark-notebook
+* jupyter/all-spark-notebook
+
+will not work out of the box with OpenShift. This is because they have not been designed properly to work with an assigned user ID. The images are also very large and the size exceeds what can be deployed to hosted OpenShift environments such as OpenShift Online.
+
+Because of the problems with the official Jupyter Project notebook images, it is recommended, for Python at least, to use the similar notebook images built above. These images have the benefit of also being S2I enabled.
+
+If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply special configuration to the ``KubeSpanwer`` plugin for these images to have them work. For example:
+
+```
+c.ProfilesSpawner.profiles = [
+    (
+        "Jupyter Project - Minimal Notebook",
+        'minimal-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
+             singleuser_supplemental_gids=[100])
+    ),
+    (
+        "Jupyter Project - SciPy Notebook",
+        'scipy-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/scipy-notebook:latest',
+             singleuser_supplemental_gids=[100])
+    ),
+    (
+        "Jupyter Project - DataScience Notebook",
+        'datascience-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/datascience-notebook:latest',
+             singleuser_supplemental_gids=[100])
+    ),
+    (
+        "Jupyter Project - Tensorflow Notebook",
+        'tensorflow-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/tensorflow-notebook:latest',
+             singleuser_supplemental_gids=[100])
+    ),
+    (
+        "Jupyter Project - R Notebook",
+        'r-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
+             singleuser_supplemental_gids=[100])
+    ),
+]
+```
+
+The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
+
+Even though this allows the images to be run, you may still encounter issues, as the images do not dynamically provide ``passwd`` and ``group`` file entries in the case the container is run as an assigned user ID different to what the image defines. The lack of these entries can cause software to fail when it doesn't gracefully handle the lack of an entry.
