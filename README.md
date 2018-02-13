@@ -355,3 +355,24 @@ If you are presenting to users a list of images they can choose, if necessary yo
 Note that you should only use persistent storage when you are also using an authenticator and you know you have enough persistent volumes available to satisfy the needs of all potential users. This is because once a persistent volume is claimed and associated with a user, it is retained, even if the users notebook instance was shut down. If you want to reclaim persistent volumes, you will need to delete them manually using ``oc delete pvc``.
 
 Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden. To have the contents of a directory in the image copied into a persistent volume the first time the notebook is started, you will need to perform some magic using what is called an init container.
+
+Culling Idle Notebook Instances
+-------------------------------
+
+When a notebook instance is created for a user, they will keep running until the user stops it, or OpenShift decides for some reason to stop them. In the latter, if the user was still using it, they would need to start it up again as notebook images will not be automatically restarted.
+
+If you have many more users using the JupyterHub instance than you have memory and CPU resources, but you know not all users will use it at the same time, that is okay, so long as you shut down notebook instances when they have been idle, to free up resources.
+
+To add culling of idle notebook instances, add to the JupyterHub configuration:
+
+```
+c.JupyterHub.services = [
+    {
+        'name': 'cull-idle',
+        'admin': True,
+        'command': ['cull-idle-servers', '--timeout=300'],
+    }
+]
+```
+
+The ``cull-idle-servers`` program is provided with the JupyterHub image. Adjust the value for the timeout argument as necessary.
