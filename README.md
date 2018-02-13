@@ -304,6 +304,12 @@ c.ProfilesSpawner.profiles = [
 
 The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
 
+If you wanted to set this globally for all images in place of defining it for each image, you could instead set:
+
+```
+c.KubeSpawner.singleuser_supplemental_gids = [100]
+```
+
 Even though this allows the images to be run, you may still encounter issues, as the images do not dynamically provide ``passwd`` and ``group`` file entries in the case the container is run as an assigned user ID different to what the image defines. The lack of these entries can cause software to fail when it doesn't gracefully handle the lack of an entry.
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
@@ -321,8 +327,31 @@ c.GitHubOAuthenticator.oauth_callback_url = 'https://<your-jupyterhub-hostname>/
 c.GitHubOAuthenticator.client_id = 'your-client-key-from-github'
 c.GitHubOAuthenticator.client_secret = 'your-client-secret-from-github'
 
-c.Authenticator.admin_users = { 'your-github-username' }
+c.Authenticator.admin_users = {'your-github-username'}
 c.Authenticator.whitelist = {'user1', 'user2', 'user3', 'user4'}
 ```
 
 The ``oauthenticator`` package is installed by default, which includes a number of commonly user authenticators. If you need to use a third party authenticator which requires additional Python packages to be installed, you will need to use the JupyterHub image as an S2I builder, where the source it is applied to includes a ``requirements.txt`` file including the list of additional Python packages to install. This will create a custom JupyterHub image which you can then deploy by overriding the ``JUPYTERHUB_IMAGE`` template parameter.
+
+Allocating Persistent Storage to Users
+--------------------------------------
+
+When a notebook instance is created and a user creates their own notebooks, or makes changes to notebooks pulled in through an S2I build, if the instance is stopped they will loose any work they have done.
+
+To avoid this, you can configure JupyterHub to make a persistent volume claim and mount storage into the containers when a notebook instance is run.
+
+For the S2I enabled notebook images built previously, where the working directory when the notebook is run is ``/opt/app-root/src``, you can add the following to the JupyterHub configuration.
+
+```
+c.KubeSpawner.user_storage_pvc_ensure = True
+c.KubeSpawner.user_storage_capacity = '1Gi'
+c.KubeSpawner.pvc_name_template = '%s-nb-{username}-pvc' % c.KubeSpawner.hub_connect_ip
+c.KubeSpawner.volumes = [dict(name='data', persistentVolumeClaim=dict(claimName=c.KubeSpawner.pvc_name_template))]
+c.KubeSpawner.volume_mounts = [dict(name='data', mountPath='/opt/app-root/src')]
+```
+
+If you are presenting to users a list of images they can choose, if necessary you can add the spawner settings on selected images, and use a different mount path for the persistent volume if necessary.
+
+Note that you should only use persistent storage when you are also using an authenticator and you know you have enough persistent volumes available to satisfy the needs of all potential users. This is because once a persistent volume is claimed and associated with a user, it is retained, even if the users notebook instance was shut down. If you want to reclaim persistent volumes, you will need to delete them manually using ``oc delete pvc``.
+
+Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden. To have the contents of a directory in the image copied into a persistent volume the first time the notebook is started, you will need to perform some magic using what is called an init container.
