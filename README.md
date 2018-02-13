@@ -307,3 +307,22 @@ The special setting is ``singleuser_supplemental_gids``, with it needing to be s
 Even though this allows the images to be run, you may still encounter issues, as the images do not dynamically provide ``passwd`` and ``group`` file entries in the case the container is run as an assigned user ID different to what the image defines. The lack of these entries can cause software to fail when it doesn't gracefully handle the lack of an entry.
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
+
+Controlling who can Access JupyterHub
+-------------------------------------
+
+When the templates are used to deploy JupyterHub, anyone will be able to access it and create a notebook instance. To provide access to only selected users, you will need to define an authenticator as part of the JupyterHub configuration. For example, if using GitHub as an OAuth provider, you would use:
+
+```
+from oauthenticator.github import GitHubOAuthenticator
+c.JupyterHub.authenticator_class = GitHubOAuthenticator
+
+c.GitHubOAuthenticator.oauth_callback_url = 'https://<your-jupyterhub-hostname>/hub/oauth_callback'
+c.GitHubOAuthenticator.client_id = 'your-client-key-from-github'
+c.GitHubOAuthenticator.client_secret = 'your-client-secret-from-github'
+
+c.Authenticator.admin_users = { 'your-github-username' }
+c.Authenticator.whitelist = {'user1', 'user2', 'user3', 'user4'}
+```
+
+The ``oauthenticator`` package is installed by default, which includes a number of commonly user authenticators. If you need to use a third party authenticator which requires additional Python packages to be installed, you will need to use the JupyterHub image as an S2I builder, where the source it is applied to includes a ``requirements.txt`` file including the list of additional Python packages to install. This will create a custom JupyterHub image which you can then deploy by overriding the ``JUPYTERHUB_IMAGE`` template parameter.
