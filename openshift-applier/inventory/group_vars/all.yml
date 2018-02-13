@@ -1,0 +1,41 @@
+---
+openshift_cluster_content:
+- object: projectrequest
+  content:
+  - name: jupyterhub
+    template: "https://raw.githubusercontent.com/redhat-cop/cluster-lifecycle/master/files/projectrequest/template.yml"
+    template_action: create
+    params: "{{ inventory_dir }}/../params/projectrequests/jupyterhub"
+    tags:
+    - projects
+- object: jupyterhub
+  content:
+  - name: notebook-images
+    file: "https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/images.json"
+    file_action: create
+    namespace: jupyterhub
+    tags:
+    - notebook-images
+  - name: hub-base-s2i-image
+    file: "https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/images.json"
+    file_action: create
+    namespace: jupyterhub
+    tags:
+    - hub-images  
+  - name: templates
+    file: "https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates.json"
+    file_action: create
+    namespace: jupyterhub
+    tags:
+    - templates      
+  - name: hub-service-account
+    file: "{{ inventory_dir }}/../files/jupyterhub-service-account.yaml"
+    namespace: jupyterhub
+    tags:
+    - service-account     
+  - name: hub-deployment
+    template: "jupyterhub-deployer"
+    params: "{{ inventory_dir }}/../params/jupyterhub/deployment"
+    namespace: jupyterhub
+    tags:
+    - hub-deployment        
