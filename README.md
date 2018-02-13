@@ -298,10 +298,12 @@ c.ProfilesSpawner.profiles = [
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
              singleuser_supplemental_gids=[100])
-    ),
+    )
 ]
 ```
 
 The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
 
 Even though this allows the images to be run, you may still encounter issues, as the images do not dynamically provide ``passwd`` and ``group`` file entries in the case the container is run as an assigned user ID different to what the image defines. The lack of these entries can cause software to fail when it doesn't gracefully handle the lack of an entry.
+
+Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
