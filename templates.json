@@ -706,7 +706,7 @@
                                             },
                                             {
                                                 "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
-                                                "value": "${APPLICATION_NAME}-nb"
+                                                "value": "${APPLICATION_NAME}-nb:latest"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
