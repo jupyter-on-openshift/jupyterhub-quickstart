@@ -336,7 +336,7 @@ The ``oauthenticator`` package is installed by default, which includes a number 
 Allocating Persistent Storage to Users
 --------------------------------------
 
-When a notebook instance is created and a user creates their own notebooks, or makes changes to notebooks pulled in through an S2I build, if the instance is stopped they will loose any work they have done.
+When a notebook instance is created and a user creates their own notebooks if the instance is stopped they will loose any work they have done.
 
 To avoid this, you can configure JupyterHub to make a persistent volume claim and mount storage into the containers when a notebook instance is run.
 
@@ -354,7 +354,7 @@ If you are presenting to users a list of images they can choose, if necessary yo
 
 Note that you should only use persistent storage when you are also using an authenticator and you know you have enough persistent volumes available to satisfy the needs of all potential users. This is because once a persistent volume is claimed and associated with a user, it is retained, even if the users notebook instance was shut down. If you want to reclaim persistent volumes, you will need to delete them manually using ``oc delete pvc``.
 
-Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden. To have the contents of a directory in the image copied into a persistent volume the first time the notebook is started, you will need to perform some magic using what is called an init container.
+Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden if you use the same directory.
 
 Culling Idle Notebook Instances
 -------------------------------
