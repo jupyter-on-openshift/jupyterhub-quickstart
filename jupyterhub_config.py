@@ -49,16 +49,10 @@ else:
 
 c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
-c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
+c.JupyterHub.spawner_class = 'wrapspawner.KubeSpawner'
 
-default_profiles = []
-
-for name in (os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
-        'minimal-notebook:3.5').split(',')):
-    default_profiles.append((name, name, 'kubespawner.KubeSpawner',
-            dict(singleuser_image_spec=name)))
-
-c.ProfilesSpawner.profiles = default_profiles
+c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+        'minimal-notebook:3.5')
 
 # Load configuration included in the image.
 
