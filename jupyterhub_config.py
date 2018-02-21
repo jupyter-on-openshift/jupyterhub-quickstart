@@ -49,7 +49,7 @@ else:
 
 c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
-c.JupyterHub.spawner_class = 'wrapspawner.KubeSpawner'
+c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
 c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
         'minimal-notebook:3.5')
