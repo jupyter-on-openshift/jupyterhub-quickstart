@@ -136,6 +136,12 @@ oc new-app --template jupyterhub-quickstart \
   --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook
 ```
 
+Note that the notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
+
+```
+oc logs bc/jakevdp-nb --follow
+```
+
 To deploy JupyterHub using a custom notebook image you had already created, run:
 
 ```
