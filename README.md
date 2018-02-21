@@ -8,9 +8,11 @@ OpenShift, being a Kubernetes distribution, you can use the  [JupyterHub deploym
 Preparing the Jupyter Images
 ----------------------------
 
-The first step in deploying JupyterHub is to prepare the notebook images and the image for JupyterHub. Because there are a number of issues with running the images provided by the Jupyter project in a multitenant Kubernetes cluster, such as OpenShift, with full role based access control enabled and where applications must run as a user ID specific to a project, it is preferable to create images which are designed properly to work with OpenShift.
+The first step in deploying JupyterHub is to prepare the notebook images and the image for JupyterHub.
 
-To create a minimal Jupyter notebook image, as well as images similar to the ``scipy-notebook`` and ``tensorflow-notebook`` images provide by the Jupyter project team, run:
+You can use the official Jupyter project ``docker-stacks`` images, but some extra configuration is required to use those as they will not work out of the box with OpenShift. Details on how to use the Jupyter project images is described later.
+
+To create a minimal Jupyter notebook image, as well as images similar to the ``scipy-notebook`` and ``tensorflow-notebook`` images provided by the Jupyter project team, run:
 
 ```
 oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/images.json
@@ -205,15 +207,13 @@ Note that triggering a new deployment will result in any running notebook instan
 Providing a Selection of Images to Deploy
 -----------------------------------------
 
-When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of image, the value passed for ``NOTEBOOK_IMAGE`` can be a comma separated list of image names. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
+When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of images you will need to set ``wrapspawner.ProfilesSpawner`` as the spawner class for JupyterHub and provide a list of the image choices, in the JupyterHub configuration. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
 
-When multiple choices are available, the user can still only have one notebook instance running at a time. If they want to switch which image they are using, they need to use the _Control Panel_ in the JupyterHub web interface to stop the existing notebook instance. They can then start a new instance with a different image.
-
-The name of image should be the name of the image stream in the same project JupyterHub is deployed, including an image tag if not ``latest``, or can be the full image name identifying an image on a remote image registry.
-
-If you want the name displayed for an image in the web interface when choosing the image, to be different to the image name, you will need to specify the set of images from the JupyterHub configuration.
+Note that the ``wrapspawner`` package is installed by default, so you do not need to use the S2I build method to create a custom JupyterHub image.
 
 ```
+c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
+
 c.ProfilesSpawner.profiles = [
     (
         "Minimal Notebook (CentOS 7 / Python 3.5)",
@@ -236,11 +236,19 @@ c.ProfilesSpawner.profiles = [
 ]
 ```
 
-This will override any images listed in the ``NOTEBOOK_IMAGE`` template parameter.
+This will override any image defined by the ``NOTEBOOK_IMAGE`` template parameter.
 
 The first value in the tuple for an image is the display name. The second value is a unique key identifying the selection. The third value should always be ``kubespawner.KubeSpawner``. The final value is a dictionary with the settings to be applied to the spawner when deploying the image.
 
-In this case, the ``singleuser_image_spec`` setting should be set to the name for the deployed image. This dictionary can be used to set other per image specific settings if required.
+In this case, the ``singleuser_image_spec`` setting should be set to the name for the deployed image. The name of the image should be the name of the image stream in the same project JupyterHub is deployed, including an image tag if not ``latest``, or can be the full image name identifying an image on a remote image registry.
+
+This dictionary can be used to set other per image specific settings if required.
+
+When multiple choices are available, the user can still only have one notebook instance running at a time. If they want to switch which image they are using, they need to use the _Control Panel_ in the JupyterHub web interface to stop the existing notebook instance. They can then start a new instance with a different image.
+
+Note that there is currently an issue with JupyterHub when using ``wrapspawner.ProfilesSpawner``. This will prevent you accessing a server of another user as an admin from the Jupyter admin control panel. Details of this issue can be found at:
+
+* https://github.com/jupyterhub/jupyterhub/issues/1629
 
 Using the Jupyter Project Notebook Images
 -----------------------------------------
@@ -256,61 +264,65 @@ The official Jupyter Project notebook images:
 * jupyter/pyspark-notebook
 * jupyter/all-spark-notebook
 
-will not work out of the box with OpenShift. This is because they have not been designed properly to work with an assigned user ID. The images are also very large and the size exceeds what can be deployed to hosted OpenShift environments such as OpenShift Online.
+will not work out of the box with OpenShift. This is because they have not been designed to work with an arbitrarily assigned user ID without additional configuration. The images are also very large and the size exceeds what can be deployed to hosted OpenShift environments such as OpenShift Online.
 
-Because of the problems with the official Jupyter Project notebook images, it is recommended, for Python at least, to use the similar notebook images built above. These images have the benefit of also being S2I enabled.
-
-If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply special configuration to the ``KubeSpanwer`` plugin for these images to have them work. For example:
+If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply additional configuration to the ``KubeSpanwer`` plugin for these images to have them work. For example:
 
 ```
+c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
+
 c.ProfilesSpawner.profiles = [
     (
         "Jupyter Project - Minimal Notebook",
         'minimal-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100])
+             singleuser_supplemental_gids=[100],
+             cmd=['start-singleuser.sh'])
     ),
     (
         "Jupyter Project - SciPy Notebook",
         'scipy-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/scipy-notebook:latest',
-             singleuser_supplemental_gids=[100])
+             singleuser_supplemental_gids=[100],
+             cmd=['start-singleuser.sh'])
     ),
     (
         "Jupyter Project - DataScience Notebook",
         'datascience-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/datascience-notebook:latest',
-             singleuser_supplemental_gids=[100])
+             singleuser_supplemental_gids=[100],
+             cmd=['start-singleuser.sh'])
     ),
     (
         "Jupyter Project - Tensorflow Notebook",
         'tensorflow-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/tensorflow-notebook:latest',
-             singleuser_supplemental_gids=[100])
+             singleuser_supplemental_gids=[100],
+             cmd=['start-singleuser.sh'])
     ),
     (
         "Jupyter Project - R Notebook",
         'r-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
-             singleuser_supplemental_gids=[100])
+             singleuser_supplemental_gids=[100],
+             cmd=['start-singleuser.sh'])
     )
 ]
 ```
 
-The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
+The first special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``. The second special setting overrides the default ``jupyterhub-singleuser`` command used when starting an image, changing it to ``start-singleuser.sh``. The latter runs additional setup in the container needed to have everything work properly under OpenShift.
 
-If you wanted to set this globally for all images in place of defining it for each image, you could instead set:
+If you wanted to set these globally for all images in place of defining it for each image, or you were not providing a choice of image, you could instead set:
 
 ```
 c.KubeSpawner.singleuser_supplemental_gids = [100]
+c.KubeSpawner.cmd = ['start-singleuser.sh']
 ```
-
-Even though this allows the images to be run, you may still encounter issues, as the images do not dynamically provide ``passwd`` and ``group`` file entries in the case the container is run as an assigned user ID different to what the image defines. The lack of these entries can cause software to fail when it doesn't gracefully handle the lack of an entry.
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
 
