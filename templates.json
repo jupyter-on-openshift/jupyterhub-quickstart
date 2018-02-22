@@ -184,7 +184,7 @@
                                 "imageChangeParams": {
                                     "automatic": true,
                                     "containerNames": [
-                                        "${APPLICATION_NAME}"
+                                        "jupyterhub"
                                     ],
                                     "from": {
                                         "kind": "ImageStreamTag",
@@ -229,7 +229,7 @@
                                 ],
                                 "containers": [
                                     {
-                                        "name": "${APPLICATION_NAME}",
+                                        "name": "jupyterhub",
                                         "image": "${APPLICATION_NAME}:latest",
                                         "ports": [
                                             {
@@ -646,7 +646,7 @@
                                 "imageChangeParams": {
                                     "automatic": true,
                                     "containerNames": [
-                                        "${APPLICATION_NAME}"
+                                        "jupyterhub"
                                     ],
                                     "from": {
                                         "kind": "ImageStreamTag",
@@ -691,7 +691,7 @@
                                 ],
                                 "containers": [
                                     {
-                                        "name": "${APPLICATION_NAME}",
+                                        "name": "jupyterhub",
                                         "image": "${APPLICATION_NAME}:latest",
                                         "ports": [
                                             {
