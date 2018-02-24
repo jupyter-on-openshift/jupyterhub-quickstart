@@ -283,51 +283,45 @@ c.ProfilesSpawner.profiles = [
         'minimal-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             cmd=['start-singleuser.sh'])
+             singleuser_supplemental_gids=[100])
     ),
     (
         "Jupyter Project - SciPy Notebook",
         'scipy-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/scipy-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             cmd=['start-singleuser.sh'])
+             singleuser_supplemental_gids=[100])
     ),
     (
         "Jupyter Project - DataScience Notebook",
         'datascience-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/datascience-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             cmd=['start-singleuser.sh'])
+             singleuser_supplemental_gids=[100])
     ),
     (
         "Jupyter Project - Tensorflow Notebook",
         'tensorflow-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/tensorflow-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             cmd=['start-singleuser.sh'])
+             singleuser_supplemental_gids=[100])
     ),
     (
         "Jupyter Project - R Notebook",
         'r-notebook',
         'kubespawner.KubeSpawner',
         dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             cmd=['start-singleuser.sh'])
+             singleuser_supplemental_gids=[100])
     )
 ]
 ```
 
-The first special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``. The second special setting overrides the default ``jupyterhub-singleuser`` command used when starting an image, changing it to ``start-singleuser.sh``. The latter runs additional setup in the container needed to have everything work properly under OpenShift.
+The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
 
-If you wanted to set these globally for all images in place of defining it for each image, or you were not providing a choice of image, you could instead set:
+If you want to set this globally for all images in place of defining it for each image, or you were not providing a choice of image, you could instead set:
 
 ```
 c.KubeSpawner.singleuser_supplemental_gids = [100]
-c.KubeSpawner.cmd = ['start-singleuser.sh']
 ```
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.

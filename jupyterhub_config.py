@@ -25,7 +25,7 @@ c.KubeSpawner.singleuser_extra_annotations = {
     "alpha.image.policy.openshift.io/resolve-names": "*"
 }
 
-c.KubeSpawner.cmd = ['jupyterhub-singleuser']
+c.KubeSpawner.cmd = ['start-singleuser.sh']
 
 c.KubeSpawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
         c.KubeSpawner.hub_connect_ip, c.KubeSpawner.hub_connect_port)]
