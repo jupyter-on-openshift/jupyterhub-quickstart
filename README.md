@@ -326,6 +326,30 @@ c.KubeSpawner.singleuser_supplemental_gids = [100]
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
 
+Enabling the JupyterLab Interface
+---------------------------------
+
+If you have enabled the addition of the JupyterLab extension during the building of the Jupyter notebook images, or are using the official Jupyter project images, which already come bundled with the JupyterLab extension, you can enable it by setting the ``JUPYTER_ENABLE_LAB`` environment variable.
+
+```
+c.KubeSpawner.environment = dict(JUPYTER_ENABLE_LAB='true')
+```
+
+If using ``ProfilesSpawner`` to provide a list of multiple images and only want the JupyterLab interface enabled for certain images, add an ``environment `` setting to the dictionary of settings for just that image.
+
+```
+c.ProfilesSpawner.profiles = [
+    (
+        "Jupyter Project - Minimal Notebook",
+        'minimal-notebook',
+        'kubespawner.KubeSpawner',
+        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
+             singleuser_supplemental_gids=[100],
+             environment=dict(JUPYTER_ENABLE_LAB='true'))
+    )
+]
+```
+
 Controlling who can Access JupyterHub
 -------------------------------------
 
