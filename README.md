@@ -184,7 +184,7 @@ To illustrate overriding the configuration when deploying JupyterHub using the q
 
 ```
 c.KubeSpawner.start_timeout = 120
-c.KubeSpawner.http_timeout = 60
+c.KubeSpawner.http_timeout = 120
 ```
 
 Deploy JupyterHub using the quick start template as was done previously, but this time set the ``JUPYTERHUB_CONFIG`` template parameter.
