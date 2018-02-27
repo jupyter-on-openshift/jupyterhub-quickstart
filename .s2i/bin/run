@@ -2,10 +2,6 @@
 
 set -eo pipefail
 
-# Add scripts directory to program search path.
-
-PATH=$PATH:/opt/app-root/scripts
-
 # Execute the run script from the customised builder.
 
 exec /opt/app-root/builder/run
