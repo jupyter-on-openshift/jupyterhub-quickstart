@@ -184,6 +184,7 @@
                                 "imageChangeParams": {
                                     "automatic": true,
                                     "containerNames": [
+                                        "wait-for-database",
                                         "jupyterhub"
                                     ],
                                     "from": {
@@ -230,7 +231,7 @@
                                 "containers": [
                                     {
                                         "name": "jupyterhub",
-                                        "image": "${APPLICATION_NAME}:latest",
+                                        "image": "${JUPYTERHUB_IMAGE}",
                                         "ports": [
                                             {
                                                 "containerPort": 8080,
@@ -646,6 +647,7 @@
                                 "imageChangeParams": {
                                     "automatic": true,
                                     "containerNames": [
+                                        "wait-for-database",
                                         "jupyterhub"
                                     ],
                                     "from": {
@@ -692,7 +694,7 @@
                                 "containers": [
                                     {
                                         "name": "jupyterhub",
-                                        "image": "${APPLICATION_NAME}:latest",
+                                        "image": "${JUPYTERHUB_IMAGE}",
                                         "ports": [
                                             {
                                                 "containerPort": 8080,
