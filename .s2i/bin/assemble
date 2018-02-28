@@ -36,7 +36,7 @@ mv /tmp/src/builder /opt/app-root/builder
 
 mv /tmp/src/scripts /opt/app-root/scripts
 
-mv /tmp/src/start-jupyterhub.sh /opt/app/app-root/bin/
+mv /tmp/src/start-jupyterhub.sh /opt/app-root/bin/
 
 rm -rf /tmp/src
 
