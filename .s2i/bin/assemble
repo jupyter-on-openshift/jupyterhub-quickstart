@@ -32,7 +32,11 @@ mv /tmp/src/builder/image_metadata.json /tmp/.s2i/image_metadata.json
 
 mv /tmp/src/builder /opt/app-root/builder
 
+# Also move into place helper scripts and the script to start JupyterHub.
+
 mv /tmp/src/scripts /opt/app-root/scripts
+
+mv /tmp/src/start-jupyterhub.sh /opt/app/app-root/bin/
 
 rm -rf /tmp/src
 
