@@ -135,13 +135,13 @@ oc get route/jakevdp
 To delete the JupyterHub instance along with all notebook instances, run:
 
 ```
-oc delete all,configmap,pvc --selector app=jakevdp
+oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=jakevdp
 ```
 
 Using the OpenShift Web Console
 -------------------------------
 
-JupyterHub can also be deployed from the web console by selecting _Browse Catalog_ from the _Add to Project_ menu, filtering on _jupyter_ and choosing the appropriate template.
+JupyterHub can also be deployed from the web console by selecting _Select from Project_ from the _Add to Project_ menu, filtering on _jupyter_ and choosing the appropriate template.
 
 Customising the JupyterHub Deployment
 -------------------------------------
@@ -157,7 +157,7 @@ When using an S2I build, the repository can include any additional files to be i
 To illustrate overriding the configuration when deploying JupyterHub using the quick start template, create a local file ``jupyterhub_config.py`` which contains:
 
 ```
-c.KubeSpawner.start_timeout = 120
+c.KubeSpawner.start_timeout = 180
 c.KubeSpawner.http_timeout = 120
 ```
 
@@ -341,7 +341,7 @@ c.Authenticator.admin_users = {'your-github-username'}
 c.Authenticator.whitelist = {'user1', 'user2', 'user3', 'user4'}
 ```
 
-The ``oauthenticator`` package is installed by default, which includes a number of commonly user authenticators. If you need to use a third party authenticator which requires additional Python packages to be installed, you will need to use the JupyterHub image as an S2I builder, where the source it is applied to includes a ``requirements.txt`` file including the list of additional Python packages to install. This will create a custom JupyterHub image which you can then deploy by overriding the ``JUPYTERHUB_IMAGE`` template parameter.
+The ``oauthenticator`` package is installed by default and includes a number of commonly used authenticators. If you need to use a third party authenticator which requires additional Python packages to be installed, you will need to use the JupyterHub image as an S2I builder, where the source it is applied to includes a ``requirements.txt`` file including the list of additional Python packages to install. This will create a custom JupyterHub image which you can then deploy by overriding the ``JUPYTERHUB_IMAGE`` template parameter.
 
 Allocating Persistent Storage to Users
 --------------------------------------
