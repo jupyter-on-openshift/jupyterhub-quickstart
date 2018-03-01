@@ -9,12 +9,13 @@ c.JupyterHub.hub_port = 8081
 
 c.JupyterHub.proxy_api_port = 8082
 
+c.Spawner.start_timeout = 120
+c.Spawner.http_timeout = 60
+
 c.KubeSpawner.port = 8080
 
 c.KubeSpawner.hub_connect_ip = service_name
 c.KubeSpawner.hub_connect_port = 8080
-
-c.KubeSpawner.http_timeout = 60
 
 c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
 
