@@ -11,7 +11,7 @@
                     "openshift.io/display-name": "JupyterHub Builder",
                     "description": "Template for creating customised JupyterHub images.",
                     "iconClass": "icon-python",
-                    "tags": "python,jupyter"
+                    "tags": "python,jupyter,jupyterhub"
                 }
             },
             "parameters": [
@@ -111,7 +111,7 @@
                     "openshift.io/display-name": "JupyterHub",
                     "description": "Template for deploying a JupyterHub instance.",
                     "iconClass": "icon-python",
-                    "tags": "python,jupyter"
+                    "tags": "python,jupyter,jupyterhub"
                 }
             },
             "parameters": [
@@ -530,7 +530,7 @@
                     "openshift.io/display-name": "JupyterHub Quickstart",
                     "description": "Template for creating and deploying customised Jupyter notebook images using JupyterHub.",
                     "iconClass": "icon-python",
-                    "tags": "python,jupyter"
+                    "tags": "python,jupyter,jupyterhub"
                 }
             },
             "parameters": [
