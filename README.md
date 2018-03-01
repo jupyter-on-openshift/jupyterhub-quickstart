@@ -53,32 +53,6 @@ To make it easier to deploy JupyterHub in OpenShift, templates are provided. To 
 oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates.json
 ```
 
-Enabling Access to the REST API
--------------------------------
-
-The ``KubeSpawner`` plugin for JupyterHub which is used when deploying to OpenShift requires access to the Kubernetes REST API. When using OpenShift, this access is not enabled by default for applications as it is with plain Kubernetes.
-
-To grant JupyterHub access to the REST API, first create a new service account called ``jupyterhub``.
-
-```
-oc create serviceaccount jupyterhub
-```
-
-When JupyterHub is run using the templates, it will be run under the ``jupyterhub`` service account instead of the ``default`` service account for a project.
-
-Next grant this service account the ability to access the REST API, including being able to create and delete Kubernetes resource objects. This is done by giving the service account the ``edit`` role within the project.
-
-```
-oc policy add-role-to-user edit -z jupyterhub
-```
-
-You can check that the role has been added correctly by running ``oc get rolebindings``. You should see an entry for the ``edit`` role of:
-
-```
-NAME  ROLE  USERS  GROUPS  SERVICE ACCOUNTS  SUBJECTS
-edit  /edit                jupyterhub
-```
-
 Creating the JupyterHub Deployment
 ----------------------------------
 
@@ -122,7 +96,7 @@ As this configuration doesn't provide access to the admin panel in JupyterHub, y
 To delete the JupyterHub instance along with all notebook instances, run:
 
 ```
-oc delete all,configmap,pvc --selector app=jupyterhub
+oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=jupyterhub
 ```
 
 Deploying with a Custom Notebook Image
