@@ -163,6 +163,35 @@
                     }
                 },
                 {
+                    "kind": "ServiceAccount",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-hub",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    }
+                },
+                {
+                    "kind": "RoleBinding",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-edit",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "${APPLICATION_NAME}-hub"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "edit"
+                    }
+                },
+                {
                     "kind": "DeploymentConfig",
                     "apiVersion": "v1",
                     "metadata": {
@@ -210,7 +239,7 @@
                                 }
                             },
                             "spec": {
-                                "serviceAccountName": "jupyterhub",
+                                "serviceAccountName": "${APPLICATION_NAME}-hub",
                                 "initContainers": [
                                     {
                                         "name": "wait-for-database",
@@ -626,6 +655,35 @@
                     }
                 },
                 {
+                    "kind": "ServiceAccount",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-hub",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    }
+                },
+                {
+                    "kind": "RoleBinding",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-edit",
+                        "labels": {
+                            "app": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "subjects": [
+                        {
+                            "kind": "ServiceAccount",
+                            "name": "${APPLICATION_NAME}-hub"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "edit"
+                    }
+                },
+                {
                     "kind": "DeploymentConfig",
                     "apiVersion": "v1",
                     "metadata": {
@@ -673,7 +731,7 @@
                                 }
                             },
                             "spec": {
-                                "serviceAccountName": "jupyterhub",
+                                "serviceAccountName": "${APPLICATION_NAME}-hub",
                                 "initContainers": [
                                     {
                                         "name": "wait-for-database",
