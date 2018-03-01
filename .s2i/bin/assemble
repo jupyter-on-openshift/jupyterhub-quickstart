@@ -34,11 +34,20 @@ mv /tmp/src/builder /opt/app-root/builder
 
 # Also move into place helper scripts and the script to start JupyterHub.
 
-mv /tmp/src/scripts /opt/app-root/scripts
+mv /tmp/src/scripts/* /opt/app-root/bin/
 
 mv /tmp/src/start-jupyterhub.sh /opt/app-root/bin/
 
 rm -rf /tmp/src
+
+# Scripts used to be kept in /opt/app-root/scripts but are now in the
+# directory /opt/app-root/bin. Create a symlink for wait-for-database
+# for now until any templates running script from old location are
+# purged.
+
+mkdir -p /opt/app-root/scripts
+
+ln -s /opt/app-root/bin/wait-for-database /opt/app-root/scripts/wait-for-database
 
 # Ensure passwd/group file intercept happens for any shell environment.
 

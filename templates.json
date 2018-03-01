@@ -215,7 +215,7 @@
                                     {
                                         "name": "wait-for-database",
                                         "image": "${JUPYTERHUB_IMAGE}",
-                                        "command": [ "/opt/app-root/scripts/wait-for-database" ],
+                                        "command": [ "wait-for-database" ],
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
@@ -678,7 +678,7 @@
                                     {
                                         "name": "wait-for-database",
                                         "image": "${JUPYTERHUB_IMAGE}",
-                                        "command": [ "/opt/app-root/scripts/wait-for-database" ],
+                                        "command": [ "wait-for-database" ],
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
