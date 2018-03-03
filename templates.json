@@ -146,7 +146,25 @@
                     "generate": "expression",
                     "from": "[a-f0-9]{32}",
                     "required": true
-                }
+                },
+		{
+		    "name": "JUPYTERHUB_MEMORY",
+		    "description": "Amount of memory available to JupyterHub.",
+		    "value": "512M",
+		    "required": true
+		},
+		{
+		    "name": "DATABASE_MEMORY",
+		    "description": "Amount of memory available to PostgreSQL.",
+		    "value": "512M",
+		    "required": true
+		},
+		{
+		    "name": "NOTEBOOK_MEMORY",
+		    "description": "Amount of memory available to each notebook.",
+		    "value": "512M",
+		    "required": true
+		}
             ],
             "objects": [
                 {
@@ -159,7 +177,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = '${NOTEBOOK_MEMORY}'\n\n${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
@@ -267,6 +285,11 @@
                                                 "protocol": "TCP"
                                             }
                                         ],
+					"resources": {
+					    "limits": {
+						"memory": "${JUPYTERHUB_MEMORY}"
+					    }
+					},
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_SERVICE_NAME",
@@ -439,6 +462,11 @@
                                                 "protocol": "TCP"
                                             }
                                         ],
+					"resources": {
+					    "limits": {
+						"memory": "${DATABASE_MEMORY}"
+					    }
+					},
                                         "readinessProbe": {
                                             "exec": {
                                                 "command": [
@@ -580,7 +608,25 @@
                     "generate": "expression",
                     "from": "[a-f0-9]{32}",
                     "required": true
-                }
+                },
+		{
+		    "name": "JUPYTERHUB_MEMORY",
+		    "description": "Amount of memory available to JupyterHub.",
+		    "value": "512M",
+		    "required": true
+		},
+		{
+		    "name": "DATABASE_MEMORY",
+		    "description": "Amount of memory available to PostgreSQL.",
+		    "value": "512M",
+		    "required": true
+		},
+		{
+		    "name": "NOTEBOOK_MEMORY",
+		    "description": "Amount of memory available to each notebook.",
+		    "value": "512M",
+		    "required": true
+		}
             ],
             "objects": [
                 {
@@ -651,7 +697,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = '${NOTEBOOK_MEMORY}'\n\n${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
@@ -759,6 +805,11 @@
                                                 "protocol": "TCP"
                                             }
                                         ],
+					"resources": {
+					    "limits": {
+						"memory": "${JUPYTERHUB_MEMORY}"
+					    }
+					},
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_SERVICE_NAME",
@@ -931,6 +982,11 @@
                                                 "protocol": "TCP"
                                             }
                                         ],
+					"resources": {
+					    "limits": {
+						"memory": "${DATABASE_MEMORY}"
+					    }
+					},
                                         "readinessProbe": {
                                             "exec": {
                                                 "command": [
