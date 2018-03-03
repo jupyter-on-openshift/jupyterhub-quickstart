@@ -177,7 +177,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = '${NOTEBOOK_MEMORY}'\n\n${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = convert_size_to_bytes('${NOTEBOOK_MEMORY}')\n\n${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
@@ -697,7 +697,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = '${NOTEBOOK_MEMORY}'\n\n${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = convert_size_to_bytes('${NOTEBOOK_MEMORY}')\n\n${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
