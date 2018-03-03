@@ -1,5 +1,35 @@
 import os
 
+# Helper functions for doing conversions or translations if needed.
+
+def convert_size_to_bytes(size):
+    multipliers = {
+        'k': 1000,
+        'm': 1000**2,
+        'g': 1000**3,
+        't': 1000**4,
+        'ki': 1024,
+        'mi': 1024**2,
+        'gi': 1024**3,
+        'ti': 1024**4,
+    }
+
+    size = str(size)
+
+    for suffix in multipliers:
+        if size.lower().endswith(suffix):
+            return int(size[0:-len(suffix)]) * multipliers[suffix]
+    else:
+        if size.lower().endswith('b'):
+            return int(size[0:-1])
+
+    try:
+        return int(size)
+    except ValueError:
+        raise RuntimeError('"%s" is not a valid memory specification. Must be an integer or a string with suffix K, M, G, T, Ki, Mi, Gi or Ti.' % size)
+
+# Define the default configuration for JupyterHub application.
+
 service_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
 
 c.JupyterHub.port = 8080
@@ -55,33 +85,8 @@ c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
         'minimal-notebook:3.5')
 
-# Helper functions for doing conversions or translations if needed.
-
-def convert_size_to_bytes(size):
-    multipliers = {
-        'k': 1000,
-        'm': 1000**2,
-        'g': 1000**3,
-        't': 1000**4,
-        'ki': 1024,
-        'mi': 1024**2,
-        'gi': 1024**3,
-        'ti': 1024**4,
-    }
-
-    size = str(size)
-
-    for suffix in multipliers:
-        if size.lower().endswith(suffix):
-            return int(size[0:-len(suffix)]) * multipliers[suffix]
-    else:
-        if size.lower().endswith('b'):
-            return int(size[0:-1])
-
-    try:
-        return int(size)
-    except ValueError:
-        raise RuntimeError('"%s" is not a valid memory specification. Must be an integer or a string with suffix K, M, G, T, Ki, Mi, Gi or Ti.' % size)
+if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
+    c.Spawner.mem_limit = convert_size_to_bytes(os.environ['JUPYTERHUB_NOTEBOOK_MEMORY'])
 
 # Load configuration included in the image.
 

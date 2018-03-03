@@ -177,7 +177,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = convert_size_to_bytes('${NOTEBOOK_MEMORY}')\n\n${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
@@ -298,6 +298,10 @@
                                             {
                                                 "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
                                                 "value": "${NOTEBOOK_IMAGE}"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
+                                                "value": "${NOTEBOOK_MEMORY}"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
@@ -697,7 +701,7 @@
                         }
                     },
                     "data": {
-                        "jupyterhub_config.py": "c.KubeSpawner.mem_limit = convert_size_to_bytes('${NOTEBOOK_MEMORY}')\n\n${JUPYTERHUB_CONFIG}"
+                        "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
                     }
                 },
                 {
@@ -818,6 +822,10 @@
                                             {
                                                 "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
                                                 "value": "${APPLICATION_NAME}-nb:latest"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
+                                                "value": "${NOTEBOOK_MEMORY}"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
