@@ -150,19 +150,19 @@
 		{
 		    "name": "JUPYTERHUB_MEMORY",
 		    "description": "Amount of memory available to JupyterHub.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		},
 		{
 		    "name": "DATABASE_MEMORY",
 		    "description": "Amount of memory available to PostgreSQL.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		},
 		{
 		    "name": "NOTEBOOK_MEMORY",
 		    "description": "Amount of memory available to each notebook.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		}
             ],
@@ -612,19 +612,19 @@
 		{
 		    "name": "JUPYTERHUB_MEMORY",
 		    "description": "Amount of memory available to JupyterHub.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		},
 		{
 		    "name": "DATABASE_MEMORY",
 		    "description": "Amount of memory available to PostgreSQL.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		},
 		{
 		    "name": "NOTEBOOK_MEMORY",
 		    "description": "Amount of memory available to each notebook.",
-		    "value": "512M",
+		    "value": "512Mi",
 		    "required": true
 		}
             ],
