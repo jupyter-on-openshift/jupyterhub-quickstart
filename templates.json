@@ -263,6 +263,11 @@
                                         "name": "wait-for-database",
                                         "image": "${JUPYTERHUB_IMAGE}",
                                         "command": [ "wait-for-database" ],
+					"resources": {
+					    "limits": {
+						"memory": "${JUPYTERHUB_MEMORY}"
+					    }
+					},
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
@@ -787,6 +792,11 @@
                                         "name": "wait-for-database",
                                         "image": "${JUPYTERHUB_IMAGE}",
                                         "command": [ "wait-for-database" ],
+					"resources": {
+					    "limits": {
+						"memory": "${JUPYTERHUB_MEMORY}"
+					    }
+					},
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
