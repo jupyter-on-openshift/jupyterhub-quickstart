@@ -387,7 +387,7 @@ If you want to be able to pre-populate the persistent volume with notebooks and 
 c.KubeSpawner.user_storage_pvc_ensure = True
 
 c.KubeSpawner.pvc_name_template = '%s-nb-{username}' % c.KubeSpawner.hub_connect_ip
-c.KubeSpawner.user_storage_capacity = '2Gi'
+c.KubeSpawner.user_storage_capacity = '1Gi'
 
 c.KubeSpawner.volumes = [
     {
@@ -430,7 +430,7 @@ c.KubeSpawner.singleuser_init_containers = [
 ]
 ```
 
-Because the Python virtual environment and install packages are kept in the persistent volume in this case, you will need to ensure that you have adequate space in the persistent volume and may need to increase the requested storage capacity.
+Because the Python virtual environment and installed packages are kept in the persistent volume in this case, you will need to ensure that you have adequate space in the persistent volume and may need to increase the requested storage capacity.
 
 Culling Idle Notebook Instances
 -------------------------------
