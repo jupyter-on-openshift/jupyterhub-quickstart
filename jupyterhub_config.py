@@ -83,7 +83,7 @@ c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
 c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
-        'minimal-notebook:3.5')
+        's2i-minimal-notebook:3.5')
 
 if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
     c.Spawner.mem_limit = convert_size_to_bytes(os.environ['JUPYTERHUB_NOTEBOOK_MEMORY'])
