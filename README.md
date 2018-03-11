@@ -354,17 +354,83 @@ For the S2I enabled notebook images built previously, where the working director
 
 ```
 c.KubeSpawner.user_storage_pvc_ensure = True
+
+c.KubeSpawner.pvc_name_template = '%s-nb-{username}' % c.KubeSpawner.hub_connect_ip
 c.KubeSpawner.user_storage_capacity = '1Gi'
-c.KubeSpawner.pvc_name_template = '%s-nb-{username}-pvc' % c.KubeSpawner.hub_connect_ip
-c.KubeSpawner.volumes = [dict(name='data', persistentVolumeClaim=dict(claimName=c.KubeSpawner.pvc_name_template))]
-c.KubeSpawner.volume_mounts = [dict(name='data', mountPath='/opt/app-root/src')]
+
+c.KubeSpawner.volumes = [
+    {
+        'name': 'data',
+        'persistentVolumeClaim': {
+            'claimName': c.KubeSpawner.pvc_name_template
+        }
+    }
+]
+
+c.KubeSpawner.volume_mounts = [
+    {
+        'name': 'data',
+        'mountPath': '/opt/app-root/src'
+    }
+]
 ```
 
 If you are presenting to users a list of images they can choose, if necessary you can add the spawner settings on selected images, and use a different mount path for the persistent volume if necessary.
 
 Note that you should only use persistent storage when you are also using an authenticator and you know you have enough persistent volumes available to satisfy the needs of all potential users. This is because once a persistent volume is claimed and associated with a user, it is retained, even if the users notebook instance was shut down. If you want to reclaim persistent volumes, you will need to delete them manually using ``oc delete pvc``.
 
-Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden if you use the same directory.
+Also be aware that when you mount a persistent volume into a container, it will hide anything that was in the directory it is mounted on. If the working directory for the notebook in the image was pre-populated with files from an S2I build, these will be hidden if you use the same directory. When ``/opt/app-root/src`` is used as the mount point, only notebooks and other files create will be preserved. If you install additional Python packages, these will be lost when the notebook is shutdown, and you will need to reinstall them.
+
+If you want to be able to pre-populate the persistent volume with notebooks and other files from the S2I built image, you can use the following configuration. This will also preserve additional Python packages which you might install.
+
+```
+c.KubeSpawner.user_storage_pvc_ensure = True
+
+c.KubeSpawner.pvc_name_template = '%s-nb-{username}' % c.KubeSpawner.hub_connect_ip
+c.KubeSpawner.user_storage_capacity = '2Gi'
+
+c.KubeSpawner.volumes = [
+    {
+        'name': 'data',
+        'persistentVolumeClaim': {
+            'claimName': c.KubeSpawner.pvc_name_template
+        }
+    }
+]
+
+c.KubeSpawner.volume_mounts = [
+    {
+        'name': 'data',
+        'mountPath': '/opt/app-root',
+        'subPath': 'app-root'
+    }
+]
+
+c.KubeSpawner.singleuser_init_containers = [
+    {
+        'name': 'setup-volume',
+        'image': 'minimal-notebook:3.5',
+        'command': [
+            'setup-volume.sh',
+            '/opt/app-root',
+            '/mnt/app-root'
+        ],
+        'resources': {
+            'limits': {
+                'memory': '256Mi'
+            }
+        },
+        'volumeMounts': [
+            {
+                'name': 'data',
+                'mountPath': '/mnt'
+            }
+        ]
+    }
+]
+```
+
+Because the Python virtual environment and install packages are kept in the persistent volume in this case, you will need to ensure that you have adequate space in the persistent volume and may need to increase the requested storage capacity.
 
 Culling Idle Notebook Instances
 -------------------------------
