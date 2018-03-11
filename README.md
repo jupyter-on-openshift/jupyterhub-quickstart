@@ -409,7 +409,7 @@ c.KubeSpawner.volume_mounts = [
 c.KubeSpawner.singleuser_init_containers = [
     {
         'name': 'setup-volume',
-        'image': 'minimal-notebook:3.5',
+        'image': 's2i-minimal-notebook:3.5',
         'command': [
             'setup-volume.sh',
             '/opt/app-root',
