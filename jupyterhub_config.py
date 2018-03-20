@@ -90,7 +90,7 @@ if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
 
 # Load configuration included in the image.
 
-image_config_file = '/opt/app-root/src/jupyterhub_config.py'
+image_config_file = '/opt/app-root/src/.jupyter/jupyterhub_config.py'
 
 if os.path.exists(image_config_file):
     with open(image_config_file) as fp:
