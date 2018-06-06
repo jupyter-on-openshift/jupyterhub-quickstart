@@ -1,6 +1,6 @@
 jupyterhub==0.8.1
 #jupyterhub-kubespawner==0.8.1
-git+https://github.com/jupyter-on-openshift/kubespawner#egg=jupyterhub-kubespawner
+https://github.com/jupyterhub/kubespawner/archive/f3a263791423ecbc84f802ec065183dd1efa23f4.zip#egg=jupyterhub-kubespawner
 git+https://github.com/jupyterhub/wrapspawner
 jupyterhub-tmpauthenticator
 #oauthenticator
