@@ -47,7 +47,11 @@ c.KubeSpawner.port = 8080
 c.KubeSpawner.hub_connect_ip = service_name
 c.KubeSpawner.hub_connect_port = 8080
 
+# JupyterHub < 0.9.
 c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
+
+# JupyterHub >= 0.9.
+c.KubeSpawner.common_labels = { 'app': service_name }
 
 c.KubeSpawner.singleuser_uid = os.getuid()
 c.KubeSpawner.singleuser_fs_gid = os.getuid()
