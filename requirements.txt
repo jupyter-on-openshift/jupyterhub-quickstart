@@ -1,3 +1,4 @@
+tornado==4.5.3
 jupyterhub==0.9.0
 jupyterhub-kubespawner==0.8.1
 git+https://github.com/jupyterhub/wrapspawner
