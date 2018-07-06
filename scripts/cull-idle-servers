@@ -2,4 +2,4 @@
 
 source /opt/app-root/etc/scl_enable
 
-exec python `dirname $0`/cull-idle-servers.py
+exec python `dirname $0`/cull-idle-servers.py "$@"
