@@ -38,6 +38,8 @@ def backup_details(url, api_token, interval, backups):
 
     timestamp = time.strftime('%Y-%m-%d-%H-%M-%S', time.gmtime())
 
+    os.makedirs(backups, exist_ok=True)
+
     if admin_users != cached_admin_users:
         name = 'admin_users-%s.txt' % timestamp
         path = os.path.join(backups, name)
