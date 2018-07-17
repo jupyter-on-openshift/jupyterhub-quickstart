@@ -43,23 +43,51 @@ def backup_details(url, api_token, interval, backups):
     if admin_users != cached_admin_users:
         name = 'admin_users-%s.txt' % timestamp
         path = os.path.join(backups, name)
+
         print('creating backup: %s' % path)
+
         with open(path, 'w') as fp:
             fp.write('\n'.join(admin_users))
+            fp.write('\n')
+
         cached_admin_users = admin_users
+
+        try:
+            latest = os.path.join(backups, 'admin_users-latest.txt')
+            if os.path.exists(latest):
+                os.unlink(latest)
+            os.symlink(name, latest)
+
+        except OSError:
+            print('ERROR: could not update: admin_users-latest.txt')
+            pass
 
     if user_whitelist != cached_user_whitelist:
         name = 'user_whitelist-%s.txt' % timestamp
         path = os.path.join(backups, name)
+
         print('creating backup: %s' % path)
+
         with open(path, 'w') as fp:
             fp.write('\n'.join(user_whitelist))
+            fp.write('\n')
+
         cached_user_whitelist = user_whitelist
+
+        try:
+            latest = os.path.join(backups, 'user_whitelist-latest.txt')
+            if os.path.exists(latest):
+                os.unlink(latest)
+            os.symlink(name, latest)
+
+        except OSError:
+            print('ERROR: could not update: user_whitelist-latest.txt')
+            pass
 
 if __name__ == '__main__':
     define('url', default=os.environ.get('JUPYTERHUB_API_URL'),
             help="The JupyterHub API URL")
-    define('interval', default=600,
+    define('interval', default=300,
             help="Time (in seconds) between checking for changes.")
     define('backups', default='/tmp',
             help="Directory to save backup files.")
