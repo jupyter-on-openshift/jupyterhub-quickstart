@@ -5,6 +5,13 @@ This repository contains software to make it easier to host Jupyter Notebooks on
 
 OpenShift, being a Kubernetes distribution, you can use the  [JupyterHub deployment method for Kubernetes](http://zero-to-jupyterhub.readthedocs.io/) created by the Jupyter project team. That deployment method relies on using Helm templates to manage deployment. The use of Helm, and that Kubernetes is a platform for IT operations, means it isn't as easy to deploy by end users as it could be. This repository aims to provide a much easier way of deploying JupyterHub to OpenShift which makes better use of OpenShift specific features, including OpenShift templates, and Source-to-Image (S2I) builders. The result is a method for deploying JupyterHub to OpenShift which doesn't require any special admin privileges to the underlying Kubernetes cluster, or OpenShift. As long as a user has the necessary quotas for memory, CPU and persistent storage, they can deploy JupyterHub themselves.
 
+Use a stable version of this repository
+---------------------------------------
+
+When using this repository, and the parallel ``jupyter-notebooks`` repository, unless you are participating in the development and testing of the images produced from these repositories, always use a tagged version. Do not use master or development branches as your builds or deployments could break across across versions.
+
+You should therefore always use any files for creating images or templates from the required tagged version. These will reference the appropriate version. If you have created your own resource definitions to build from the repository, ensure that the ref field of the Git settings for the build refers to the desired version.
+
 Preparing the Jupyter Images
 ----------------------------
 

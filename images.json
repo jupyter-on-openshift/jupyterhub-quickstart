@@ -38,7 +38,8 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git"
+                        "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git",
+                        "ref": "1.0.0"
                     }
                 },
                 "strategy": {
