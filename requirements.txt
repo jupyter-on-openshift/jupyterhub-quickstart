@@ -1,9 +1,8 @@
 jupyterhub==0.9.1
 jupyterhub-kubespawner==0.8.1
-git+https://github.com/jupyterhub/wrapspawner
+git+https://github.com/jupyterhub/wrapspawner.git@5f2b7075f77d0c1c49066682a8e8adad0dab76db
 jupyterhub-tmpauthenticator==0.5
 #oauthenticator
-#git+https://github.com/jupyter-on-openshift/oauthenticator
 git+https://github.com/jupyterhub/oauthenticator.git@75d8b9b5ee366e7094d28a4c569986f04e3ea802
 jupyterhub-ldapauthenticator==1.2.1
 psycopg2==2.7.4
