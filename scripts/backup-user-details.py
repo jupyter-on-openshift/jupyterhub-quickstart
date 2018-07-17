@@ -11,11 +11,27 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.options import define, options, parse_command_line
 
-cached_admin_users = set()
-cached_user_whitelist = set()
+from kubernetes import config, client
+from kubernetes.client.rest import ApiException
+from kubernetes.client.models import V1ConfigMap, V1ObjectMeta
+
+service_name = os.environ.get('JUPYTERHUB_SERVICE_NAME')
+
+with open('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as fp:
+    namespace = fp.read().strip()
+
+os.environ['KUBERNETES_SERVICE_HOST'] = 'openshift.default.svc.cluster.local'
+os.environ['KUBERNETES_SERVICE_PORT'] = '443'
+
+config.load_incluster_config()
+
+corev1api = client.CoreV1Api()
+
+cached_admin_users = None
+cached_user_whitelist = None
 
 @coroutine
-def backup_details(url, api_token, interval, backups):
+def backup_details(url, api_token, interval, backups, config_map):
     # Fetch the list of users.
 
     global cached_admin_users
@@ -84,6 +100,26 @@ def backup_details(url, api_token, interval, backups):
             print('ERROR: could not update: user_whitelist-latest.txt')
             pass
 
+        if config_map:
+            config_map_object = V1ConfigMap()
+            config_map_object.kind = "ConfigMap"
+            config_map_object.api_version = "v1"
+
+            config_map_object.metadata = V1ObjectMeta(
+                name=config_map, labels={'app': service_name})
+
+            config_map_object.data = {
+                'admin_users.txt': '\n'.join(admin_users)+'\n',
+                'user_whitelist.txt': '\n'.join(user_whitelist)+'\n'
+            }
+
+            try:
+                corev1api.replace_namespaced_config_map(config_map,
+                        namespace, config_map_object)
+
+            except Exception as e:
+                print('cannot update config map %s: %s' % (config_map, e))
+
 if __name__ == '__main__':
     define('url', default=os.environ.get('JUPYTERHUB_API_URL'),
             help="The JupyterHub API URL")
@@ -91,6 +127,8 @@ if __name__ == '__main__':
             help="Time (in seconds) between checking for changes.")
     define('backups', default='/tmp',
             help="Directory to save backup files.")
+    define('config-map', default='',
+            help="Name of config map to save backup files.")
 
     parse_command_line()
 
@@ -99,7 +137,8 @@ if __name__ == '__main__':
     loop = IOLoop.current()
 
     task = partial(backup_details, url=options.url, api_token=api_token,
-            interval=options.interval, backups=options.backups)
+            interval=options.interval, backups=options.backups,
+            config_map=options.config_map)
 
     # Schedule the first backup immediately because the period callback
     # doesn't start until the end of the first interval
