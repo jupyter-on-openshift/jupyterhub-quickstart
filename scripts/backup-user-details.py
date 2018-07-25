@@ -117,6 +117,18 @@ def backup_details(url, api_token, interval, backups, config_map):
                 corev1api.replace_namespaced_config_map(config_map,
                         namespace, config_map_object)
 
+            except ApiException as e:
+                if e.status == 404:
+                    try:
+                        corev1api.create_namespaced_config_map(
+                                namespace, config_map_object)
+
+                    except Exception as e:
+                        print('cannot update config map %s: %s' % (config_map, e))
+
+                else:
+                    print('cannot update config map %s: %s' % (config_map, e))
+
             except Exception as e:
                 print('cannot update config map %s: %s' % (config_map, e))
 
