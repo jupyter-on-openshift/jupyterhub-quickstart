@@ -276,6 +276,10 @@
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_HOST",
                                                 "value": "${APPLICATION_NAME}-db"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_NAME",
+                                                "value": "postgres"
                                             }
                                         ]
                                     }
@@ -315,6 +319,10 @@
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_HOST",
                                                 "value": "${APPLICATION_NAME}-db"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_NAME",
+                                                "value": "postgres"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_COOKIE_SECRET",
@@ -457,7 +465,7 @@
                                             },
                                             {
                                                 "name": "POSTGRESQL_DATABASE",
-                                                "value": "jupyterhub"
+                                                "value": "postgres"
                                             }
                                         ],
                                         "livenessProbe": {
@@ -805,6 +813,10 @@
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_HOST",
                                                 "value": "${APPLICATION_NAME}-db"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_NAME",
+                                                "value": "postgres"
                                             }
                                         ]
                                     }
@@ -844,6 +856,10 @@
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_HOST",
                                                 "value": "${APPLICATION_NAME}-db"
+                                            },
+                                            {
+                                                "name": "JUPYTERHUB_DATABASE_NAME",
+                                                "value": "postgres"
                                             },
                                             {
                                                 "name": "JUPYTERHUB_COOKIE_SECRET",
@@ -986,7 +1002,7 @@
                                             },
                                             {
                                                 "name": "POSTGRESQL_DATABASE",
-                                                "value": "jupyterhub"
+                                                "value": "postgres"
                                             }
                                         ],
                                         "livenessProbe": {
