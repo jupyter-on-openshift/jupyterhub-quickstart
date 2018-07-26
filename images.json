@@ -39,7 +39,7 @@
                     "type": "Git",
                     "git": {
                         "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git",
-                        "ref": "1.0.3"
+                        "ref": "1.0.4"
                     }
                 },
                 "strategy": {
