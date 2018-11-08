@@ -301,7 +301,7 @@
                                         },
                                         "env": [
                                             {
-                                                "name": "JUPYTERHUB_SERVICE_NAME",
+                                                "name": "APPLICATION_NAME",
                                                 "value": "${APPLICATION_NAME}"
                                             },
                                             {
@@ -838,7 +838,7 @@
                                         },
                                         "env": [
                                             {
-                                                "name": "JUPYTERHUB_SERVICE_NAME",
+                                                "name": "APPLICATION_NAME",
                                                 "value": "${APPLICATION_NAME}"
                                             },
                                             {

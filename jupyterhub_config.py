@@ -30,7 +30,8 @@ def convert_size_to_bytes(size):
 
 # Define the default configuration for JupyterHub application.
 
-service_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
+application_name = os.environ.get('APPLICATION_NAME', 'jupyterhub')
+application_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', application_name)
 
 c.JupyterHub.port = 8080
 
@@ -44,9 +45,9 @@ c.Spawner.http_timeout = 60
 
 c.KubeSpawner.port = 8080
 
-c.JupyterHub.hub_connect_ip = service_name
+c.JupyterHub.hub_connect_ip = application_name
 
-c.KubeSpawner.common_labels = { 'app': service_name }
+c.KubeSpawner.common_labels = { 'app': application_name }
 
 c.KubeSpawner.uid = os.getuid()
 c.KubeSpawner.fs_gid = os.getuid()
@@ -57,7 +58,7 @@ c.KubeSpawner.extra_annotations = {
 
 c.KubeSpawner.cmd = ['start-singleuser.sh']
 
-c.KubeSpawner.pod_name_template = '%s-nb-{username}' % service_name
+c.KubeSpawner.pod_name_template = '%s-nb-{username}' % application_name
 
 c.JupyterHub.admin_access = True
 
