@@ -37,20 +37,15 @@ c.JupyterHub.port = 8080
 c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_port = 8081
 
-c.JupyterHub.proxy_api_port = 8082
+c.ConfigurableHTTPProxy.api_url = 'http://127.0.0.1:8082'
 
 c.Spawner.start_timeout = 120
 c.Spawner.http_timeout = 60
 
 c.KubeSpawner.port = 8080
 
-c.KubeSpawner.hub_connect_ip = service_name
-c.KubeSpawner.hub_connect_port = 8080
+c.JupyterHub.hub_connect_ip = service_name
 
-# JupyterHub < 0.9.
-c.KubeSpawner.singleuser_extra_labels = { 'app': service_name }
-
-# JupyterHub >= 0.9.
 c.KubeSpawner.common_labels = { 'app': service_name }
 
 c.KubeSpawner.singleuser_uid = os.getuid()
@@ -62,10 +57,7 @@ c.KubeSpawner.singleuser_extra_annotations = {
 
 c.KubeSpawner.cmd = ['start-singleuser.sh']
 
-c.KubeSpawner.args = ['--hub-api-url=http://%s:%d/hub/api' % (
-        c.KubeSpawner.hub_connect_ip, c.KubeSpawner.hub_connect_port)]
-
-c.KubeSpawner.pod_name_template = '%s-nb-{username}' % c.KubeSpawner.hub_connect_ip
+c.KubeSpawner.pod_name_template = '%s-nb-{username}' % service_name
 
 c.JupyterHub.admin_access = True
 
