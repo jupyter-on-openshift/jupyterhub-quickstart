@@ -48,10 +48,10 @@ c.JupyterHub.hub_connect_ip = service_name
 
 c.KubeSpawner.common_labels = { 'app': service_name }
 
-c.KubeSpawner.singleuser_uid = os.getuid()
-c.KubeSpawner.singleuser_fs_gid = os.getuid()
+c.KubeSpawner.uid = os.getuid()
+c.KubeSpawner.fs_gid = os.getuid()
 
-c.KubeSpawner.singleuser_extra_annotations = {
+c.KubeSpawner.extra_annotations = {
     "alpha.image.policy.openshift.io/resolve-names": "*"
 }
 
@@ -79,7 +79,7 @@ c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
-c.KubeSpawner.singleuser_image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+c.KubeSpawner.image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
         's2i-minimal-notebook:3.5')
 
 if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
