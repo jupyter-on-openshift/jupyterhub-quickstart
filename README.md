@@ -15,14 +15,14 @@ You should therefore always use any files for creating images or templates from 
 Preparing the Jupyter Images
 ----------------------------
 
-The first step in deploying JupyterHub is to prepare the notebook images and the image for JupyterHub.
+The first step in deploying JupyterHub is to prepare a notebook image and the image for JupyterHub.
 
 You can use the official Jupyter project ``docker-stacks`` images, but some extra configuration is required to use those as they will not work out of the box with OpenShift. Details on how to use the Jupyter project images is described later.
 
-To load an image stream definition for a minimal Jupyter notebook image, run:
+To load an image stream definition for a minimal Jupyter notebook image designed to run in OpenShift, run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/develop/image-streams/s2i-minimal-notebook.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/image-streams/s2i-minimal-notebook.json
 ```
 
 A tagged image ``s2i-minimal-notebook:3.6`` should be created in your project. This image is based on CentOS.
@@ -57,7 +57,7 @@ oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-q
 Creating the JupyterHub Deployment
 ----------------------------------
 
-To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``s2i-minimal-notebook:3.5`` image, run:
+To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``s2i-minimal-notebook:3.6`` image, run:
 
 ```
 oc new-app --template jupyterhub-deployer
@@ -91,6 +91,8 @@ This should yield results similar to:
 NAME                                                         READY     STATUS    RESTARTS   AGE
 jupyterhub-nb-5b7eac5d-2da834-2d4219-2dac19-2dad7f2ee00e30   1/1       Running   0          5m
 ```
+
+Note that the first notebook instance deployed may be slow to start up as the notebook image may need to be pulled down from the image registry.
 
 As this configuration doesn't provide access to the admin panel in JupyterHub, you can forcibly stop a notebook instance by running ``oc delete pod`` on the specific pod instance.
 
@@ -410,7 +412,7 @@ c.KubeSpawner.volume_mounts = [
 c.KubeSpawner.singleuser_init_containers = [
     {
         'name': 'setup-volume',
-        'image': 's2i-minimal-notebook:3.5',
+        'image': 's2i-minimal-notebook:3.6',
         'command': [
             'setup-volume.sh',
             '/opt/app-root',
