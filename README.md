@@ -3,12 +3,12 @@ JupyterHub for OpenShift
 
 This repository contains software to make it easier to host Jupyter Notebooks on OpenShift using JupyterHub.
 
-OpenShift, being a Kubernetes distribution, you can use the  [JupyterHub deployment method for Kubernetes](http://zero-to-jupyterhub.readthedocs.io/) created by the Jupyter project team. That deployment method relies on using Helm templates to manage deployment. The use of Helm, and that Kubernetes is a platform for IT operations, means it isn't as easy to deploy by end users as it could be. This repository aims to provide a much easier way of deploying JupyterHub to OpenShift which makes better use of OpenShift specific features, including OpenShift templates, and Source-to-Image (S2I) builders. The result is a method for deploying JupyterHub to OpenShift which doesn't require any special admin privileges to the underlying Kubernetes cluster, or OpenShift. As long as a user has the necessary quotas for memory, CPU and persistent storage, they can deploy JupyterHub themselves.
+OpenShift, being a Kubernetes distribution, you can use the [JupyterHub deployment method for Kubernetes](http://zero-to-jupyterhub.readthedocs.io/) created by the Jupyter project team. That deployment method relies on using Helm templates to manage deployment. The use of Helm, and that Kubernetes is a platform for IT operations, means it isn't as easy to deploy by end users as it could be. This repository aims to provide a much easier way of deploying JupyterHub to OpenShift which makes better use of OpenShift specific features, including OpenShift templates, and Source-to-Image (S2I) builders. The result is a method for deploying JupyterHub to OpenShift which doesn't require any special admin privileges to the underlying Kubernetes cluster, or OpenShift. As long as a user has the necessary quotas for memory, CPU and persistent storage, they can deploy JupyterHub themselves.
 
 Use a stable version of this repository
 ---------------------------------------
 
-When using this repository, and the parallel ``jupyter-notebooks`` repository, unless you are participating in the development and testing of the images produced from these repositories, always use a tagged version. Do not use master or development branches as your builds or deployments could break across across versions.
+When using this repository, and the parallel ``jupyter-notebooks`` repository, unless you are participating in the development and testing of the images produced from these repositories, always use a tagged version. Do not use master or development branches as your builds or deployments could break across versions.
 
 You should therefore always use any files for creating images or templates from the required tagged version. These will reference the appropriate version. If you have created your own resource definitions to build from the repository, ensure that the ref field of the Git settings for the build refers to the desired version.
 
@@ -19,21 +19,15 @@ The first step in deploying JupyterHub is to prepare the notebook images and the
 
 You can use the official Jupyter project ``docker-stacks`` images, but some extra configuration is required to use those as they will not work out of the box with OpenShift. Details on how to use the Jupyter project images is described later.
 
-To create a minimal Jupyter notebook image, as well as images similar to the ``scipy-notebook`` and ``tensorflow-notebook`` images provided by the Jupyter project team, run:
+To load an image stream definition for a minimal Jupyter notebook image, run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/images.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/develop/image-streams/s2i-minimal-notebook.json
 ```
 
-This will create a build configuration in your OpenShift project to build the images using the Python 3.5 S2I builder. You can watch the progress of the build for the minimal Jupyter notebook image by running:
+A tagged image ``s2i-minimal-notebook:3.6`` should be created in your project. This image is based on CentOS.
 
-```
-oc logs --follow bc/s2i-minimal-notebook
-```
-
-A tagged image ``s2i-minimal-notebook:3.5`` should be created in your project.
-
-For more detailed instructions on creating the minimal Jupyter notebook image, and how to create custom notebook images, read:
+For more detailed instructions on creating the minimal notebook image, including how to build it from source code or using a RHEL base image, as well as how to create custom notebook images, read:
 
 * https://github.com/jupyter-on-openshift/jupyter-notebooks
 
@@ -203,22 +197,22 @@ c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
 c.ProfilesSpawner.profiles = [
     (
-        "Minimal Notebook (CentOS 7 / Python 3.5)",
+        "Minimal Notebook (CentOS 7 / Python 3.6)",
         's2i-minimal-notebook',
         'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-minimal-notebook:3.5')
+        dict(singleuser_image_spec='s2i-minimal-notebook:3.6')
     ),
     (
-        "SciPy Notebook (CentOS 7 / Python 3.5)",
+        "SciPy Notebook (CentOS 7 / Python 3.6)",
         's2i-scipy-notebook',
         'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-scipy-notebook:3.5')
+        dict(singleuser_image_spec='s2i-scipy-notebook:3.6')
     ),
     (
-        "Tensorflow Notebook (CentOS 7 / Python 3.5)",
+        "Tensorflow Notebook (CentOS 7 / Python 3.6)",
         's2i-tensorflow-notebook',
         'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-tensorflow-notebook:3.5')
+        dict(singleuser_image_spec='s2i-tensorflow-notebook:3.6')
     )
 ]
 ```
