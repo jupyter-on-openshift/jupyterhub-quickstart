@@ -91,9 +91,9 @@ def resolve_image_name(name):
     # extract out the full name of the image including the reference
     # to the image registry it is hosted on.
 
-    if image_stream.spec.tags:
-        for entry in image_stream.spec.tags:
-            if entry.name == tag:
+    if image_stream.status.tags:
+        for entry in image_stream.status.tags:
+            if entry.tag == tag:
                 registry_image = image_stream.status.dockerImageRepository
                 if registry_image:
                     return '%s:%s' % (registry_image, tag)
