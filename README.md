@@ -111,9 +111,12 @@ To deploy JupyterHub and have it build a custom notebook image for you, run:
 oc new-app --template jupyterhub-quickstart \
   --param APPLICATION_NAME=jakevdp \
   --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook
+  --param BUILDER_IMAGE=s2i-minimal-notebook:3.5
 ```
 
-Note that the notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
+The ``s2i-minimal-notebook:3.5`` builder image is used here instead of the default ``s2i-minimal-notebook:3.6`` build image, as the repository being used as input to the S2I build only supports Python 3.5.
+
+The notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
 
 ```
 oc logs bc/jakevdp-nb --follow
