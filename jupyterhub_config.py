@@ -1,6 +1,12 @@
 import os
 
-# Helper functions for doing conversions or translations if needed.
+from kubernetes.client.rest import ApiException
+
+from openshift.config import load_incluster_config
+from openshift.client.api_client import ApiClient
+from openshift.dynamic import DynamicClient
+
+# Helper function for doing unit conversions or translations if needed.
 
 def convert_size_to_bytes(size):
     multipliers = {
@@ -28,7 +34,77 @@ def convert_size_to_bytes(size):
     except ValueError:
         raise RuntimeError('"%s" is not a valid memory specification. Must be an integer or a string with suffix K, M, G, T, Ki, Mi, Gi or Ti.' % size)
 
-# Define the default configuration for JupyterHub application.
+# Work out the name of the namespace in which we are being deployed.
+# deployment is in.
+
+service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
+
+with open(os.path.join(service_account_path, 'namespace')) as fp:
+    namespace = fp.read().strip()
+
+# Initialise client for the REST API used doing configuration.
+
+load_incluster_config()
+
+api_client = DynamicClient(ApiClient())
+
+image_stream_resource = api_client.resources.get(
+     api_version='image.openshift.io/v1', kind='ImageStream')
+
+# Helper function for determining the correct name for the image. We
+# need to do this for references to image streams because of the image
+# lookup policy often not being correctly setup on OpenShift clusters.
+
+def resolve_image_name(name):
+    # If the image name contains a slash, we assume it is already
+    # referring to an image on some image registry. Even if it does
+    # not contain a slash, it may still be hosted on docker.io.
+
+    if name.find('/') != -1:
+        return name
+
+    # Separate actual source image name and tag for the image from the
+    # name. If the tag is not supplied, default to 'latest'.
+
+    parts = name.split(':', 1)
+
+    if len(parts) == 1:
+        source_image, tag = parts, 'latest'
+    else:
+        source_image, tag = parts
+
+    # See if there is an image stream in the current project with the
+    # target name.
+
+    try:
+        image_stream = image_stream_resource.get(namespace=namespace,
+                name=source_image)
+
+    except ApiException as e:
+        if e.status not in (403, 404):
+            raise
+
+        return name
+
+    # If we get here then the image stream exists with the target name.
+    # We need to determine if the tag exists. If it does exist, we
+    # extract out the full name of the image including the reference
+    # to the image registry it is hosted on.
+
+    if image_stream.status.tags:
+        for entry in image_stream.status.tags:
+            if entry.tag == tag:
+                registry_image = image_stream.status.dockerImageRepository
+                if registry_image:
+                    return '%s:%s' % (registry_image, tag)
+
+    # Use original value if can't find a matching tag.
+
+    return name
+
+# Define the default configuration for JupyterHub application. The
+# JUPYTERHUB_SERVICE_NAME is kept for backward compatibility only, use
+# APPLICATION_NAME to pass in the name of the deployment.
 
 application_name = os.environ.get('APPLICATION_NAME', 'jupyterhub')
 application_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', application_name)
@@ -80,8 +156,9 @@ c.JupyterHub.authenticator_class = 'tmpauthenticator.TmpAuthenticator'
 
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 
-c.KubeSpawner.image_spec = os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
-        's2i-minimal-notebook:3.5')
+c.KubeSpawner.image_spec = resolve_image_name(
+        os.environ.get('JUPYTERHUB_NOTEBOOK_IMAGE',
+        's2i-minimal-notebook:3.6'))
 
 if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
     c.Spawner.mem_limit = convert_size_to_bytes(os.environ['JUPYTERHUB_NOTEBOOK_MEMORY'])

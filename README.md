@@ -3,53 +3,49 @@ JupyterHub for OpenShift
 
 This repository contains software to make it easier to host Jupyter Notebooks on OpenShift using JupyterHub.
 
-OpenShift, being a Kubernetes distribution, you can use the  [JupyterHub deployment method for Kubernetes](http://zero-to-jupyterhub.readthedocs.io/) created by the Jupyter project team. That deployment method relies on using Helm templates to manage deployment. The use of Helm, and that Kubernetes is a platform for IT operations, means it isn't as easy to deploy by end users as it could be. This repository aims to provide a much easier way of deploying JupyterHub to OpenShift which makes better use of OpenShift specific features, including OpenShift templates, and Source-to-Image (S2I) builders. The result is a method for deploying JupyterHub to OpenShift which doesn't require any special admin privileges to the underlying Kubernetes cluster, or OpenShift. As long as a user has the necessary quotas for memory, CPU and persistent storage, they can deploy JupyterHub themselves.
+OpenShift, being a Kubernetes distribution, you can use the [JupyterHub deployment method for Kubernetes](http://zero-to-jupyterhub.readthedocs.io/) created by the Jupyter project team. That deployment method relies on using Helm templates to manage deployment. The use of Helm, and that Kubernetes is a platform for IT operations, means it isn't as easy to deploy by end users as it could be. This repository aims to provide a much easier way of deploying JupyterHub to OpenShift which makes better use of OpenShift specific features, including OpenShift templates, and Source-to-Image (S2I) builders. The result is a method for deploying JupyterHub to OpenShift which doesn't require any special admin privileges to the underlying Kubernetes cluster, or OpenShift. As long as a user has the necessary quotas for memory, CPU and persistent storage, they can deploy JupyterHub themselves.
 
 Use a stable version of this repository
 ---------------------------------------
 
-When using this repository, and the parallel ``jupyter-notebooks`` repository, unless you are participating in the development and testing of the images produced from these repositories, always use a tagged version. Do not use master or development branches as your builds or deployments could break across across versions.
+When using this repository, and the parallel ``jupyter-notebooks`` repository, unless you are participating in the development and testing of the images produced from these repositories, always use a tagged version. Do not use master or development branches as your builds or deployments could break across versions.
 
 You should therefore always use any files for creating images or templates from the required tagged version. These will reference the appropriate version. If you have created your own resource definitions to build from the repository, ensure that the ref field of the Git settings for the build refers to the desired version.
 
 Preparing the Jupyter Images
 ----------------------------
 
-The first step in deploying JupyterHub is to prepare the notebook images and the image for JupyterHub.
+The first step in deploying JupyterHub is to prepare a notebook image and the image for JupyterHub.
 
 You can use the official Jupyter project ``docker-stacks`` images, but some extra configuration is required to use those as they will not work out of the box with OpenShift. Details on how to use the Jupyter project images is described later.
 
-To create a minimal Jupyter notebook image, as well as images similar to the ``scipy-notebook`` and ``tensorflow-notebook`` images provided by the Jupyter project team, run:
+To load an image stream definition for a minimal Jupyter notebook image designed to run in OpenShift, run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/images.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/image-streams/s2i-minimal-notebook.json
 ```
 
-This will create a build configuration in your OpenShift project to build the images using the Python 3.5 S2I builder. You can watch the progress of the build for the minimal Jupyter notebook image by running:
+An image stream named ``s2i-minimal-notebook`` should be created in your project, with tags ``3.5`` and ``3.6``, corresponding to Python 3.5 and 3.6 variants of the notebook image. This image is based on CentOS.
 
-```
-oc logs --follow bc/s2i-minimal-notebook
-```
-
-A tagged image ``s2i-minimal-notebook:3.5`` should be created in your project.
-
-For more detailed instructions on creating the minimal Jupyter notebook image, and how to create custom notebook images, read:
+For more detailed instructions on creating the minimal notebook image, including how to build it from source code or using a RHEL base image, as well as how to create custom notebook images, read:
 
 * https://github.com/jupyter-on-openshift/jupyter-notebooks
 
-To create the JupyterHub image, next run:
+To load the JupyterHub image, next run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/images.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/image-streams/jupyterhub.json
 ```
 
-This will create a build configuration in your OpenShift project to build a JupyterHub image using the Python 3.5 S2I builder. You can watch the progress of the build by running:
+An image stream named ``jupyterhub`` should be created in your project, with a tag corresponding to whatever is the latest version. This image is also based on CentOS.
+
+If you are using OpenShift Container Platform, and need to instead build a RHEL based version of the JupyterHub image, you can use the command:
 
 ```
-oc logs --follow bc/jupyterhub
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/build-configs/jupyterhub.json
 ```
 
-A tagged image ``jupyterhub:latest`` should be created in your project.
+Use one or the other method. Do not load the image stream and try and create a build config to create it, at the same time.
 
 Loading the JupyterHub Templates
 --------------------------------
@@ -57,13 +53,17 @@ Loading the JupyterHub Templates
 To make it easier to deploy JupyterHub in OpenShift, templates are provided. To load the templates run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-builder.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-deployer.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-quickstart.json
 ```
+
+This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer`` and ``jupyterhub-quickstart``.
 
 Creating the JupyterHub Deployment
 ----------------------------------
 
-To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``s2i-minimal-notebook:3.5`` image, run:
+To deploy JupyterHub with the default configuration, which will provide you a deployment similar to ``tmpnb.org``, and using the ``s2i-minimal-notebook:3.6`` image, run:
 
 ```
 oc new-app --template jupyterhub-deployer
@@ -98,6 +98,8 @@ NAME                                                         READY     STATUS   
 jupyterhub-nb-5b7eac5d-2da834-2d4219-2dac19-2dad7f2ee00e30   1/1       Running   0          5m
 ```
 
+Note that the first notebook instance deployed may be slow to start up as the notebook image may need to be pulled down from the image registry.
+
 As this configuration doesn't provide access to the admin panel in JupyterHub, you can forcibly stop a notebook instance by running ``oc delete pod`` on the specific pod instance.
 
 To delete the JupyterHub instance along with all notebook instances, run:
@@ -114,10 +116,13 @@ To deploy JupyterHub and have it build a custom notebook image for you, run:
 ```
 oc new-app --template jupyterhub-quickstart \
   --param APPLICATION_NAME=jakevdp \
-  --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook
+  --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook \
+  --param BUILDER_IMAGE=s2i-minimal-notebook:3.5
 ```
 
-Note that the notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
+The ``s2i-minimal-notebook:3.5`` builder image is used in this specific case instead of the default ``s2i-minimal-notebook:3.6`` build image, as the repository being used as input to the S2I build only supports Python 3.5.
+
+The notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
 
 ```
 oc logs bc/jakevdp-nb --follow
@@ -128,7 +133,7 @@ To deploy JupyterHub using a custom notebook image you had already created, run:
 ```
 oc new-app --template jupyterhub-deployer \
   --param APPLICATION_NAME=jakevdp \
-  --param NOTEBOOK_IMAGE=jakevdp-notebook:latest
+  --param NOTEBOOK_IMAGE=jakevdp-nb:latest
 ```
 
 Because ``APPLICATION_NAME`` was supplied, the JupyterHub instance and notebooks in this case will all be labelled with ``jakevdp``.
@@ -194,48 +199,31 @@ Note that triggering a new deployment will result in any running notebook instan
 Providing a Selection of Images to Deploy
 -----------------------------------------
 
-When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of images you will need to set ``wrapspawner.ProfilesSpawner`` as the spawner class for JupyterHub and provide a list of the image choices, in the JupyterHub configuration. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
-
-Note that the ``wrapspawner`` package is installed by default, so you do not need to use the S2I build method to create a custom JupyterHub image.
+When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of images you will need to define what is called a profile list in the configuration. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
 
 ```
-c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
-
-c.ProfilesSpawner.profiles = [
-    (
-        "Minimal Notebook (CentOS 7 / Python 3.5)",
-        's2i-minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-minimal-notebook:3.5')
-    ),
-    (
-        "SciPy Notebook (CentOS 7 / Python 3.5)",
-        's2i-scipy-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-scipy-notebook:3.5')
-    ),
-    (
-        "Tensorflow Notebook (CentOS 7 / Python 3.5)",
-        's2i-tensorflow-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-tensorflow-notebook:3.5')
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Minimal Notebook (CentOS 7 / Python 3.5)',
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.5'
+        }
+    },
+    {
+        'display_name': 'Minimal Notebook (CentOS 7 / Python 3.6)',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6'
+        }
+    }
 ]
 ```
 
 This will override any image defined by the ``NOTEBOOK_IMAGE`` template parameter.
 
-The first value in the tuple for an image is the display name. The second value is a unique key identifying the selection. The third value should always be ``kubespawner.KubeSpawner``. The final value is a dictionary with the settings to be applied to the spawner when deploying the image.
+For further information on using the profile list configuration see the ``KubeSpawner`` documentation.
 
-In this case, the ``singleuser_image_spec`` setting should be set to the name for the deployed image. The name of the image should be the name of the image stream in the same project JupyterHub is deployed, including an image tag if not ``latest``, or can be the full image name identifying an image on a remote image registry.
-
-This dictionary can be used to set other per image specific settings if required.
-
-When multiple choices are available, the user can still only have one notebook instance running at a time. If they want to switch which image they are using, they need to use the _Control Panel_ in the JupyterHub web interface to stop the existing notebook instance. They can then start a new instance with a different image.
-
-Note that there is currently an issue with JupyterHub when using ``wrapspawner.ProfilesSpawner``. This will prevent you accessing a server of another user as an admin from the Jupyter admin control panel. Details of this issue can be found at:
-
-* https://github.com/jupyterhub/jupyterhub/issues/1629
+* https://jupyterhub-kubespawner.readthedocs.io/en/latest/spawner.html
 
 Using the Jupyter Project Notebook Images
 -----------------------------------------
@@ -253,56 +241,41 @@ The official Jupyter Project notebook images:
 
 will not work out of the box with OpenShift. This is because they have not been designed to work with an arbitrarily assigned user ID without additional configuration. The images are also very large and the size exceeds what can be deployed to hosted OpenShift environments such as OpenShift Online.
 
-If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply additional configuration to the ``KubeSpanwer`` plugin for these images to have them work. For example:
+If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply additional configuration to the ``KubeSpawner`` plugin for these images to have them work. For example:
 
 ```
-c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
-
-c.ProfilesSpawner.profiles = [
-    (
-        "Jupyter Project - Minimal Notebook",
-        'minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - SciPy Notebook",
-        'scipy-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/scipy-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - DataScience Notebook",
-        'datascience-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/datascience-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - Tensorflow Notebook",
-        'tensorflow-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/tensorflow-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - R Notebook",
-        'r-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Jupyter Project - Minimal Notebook',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/minimal-notebook:latest',
+            'supplemental_gids': [100]
+        }
+    },
+    {
+        'display_name': 'Jupyter Project - Scipy Notebook',
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/scipy-notebook:latest',
+            'supplemental_gids': [100]
+        }
+    },
+    {
+        'display_name': 'Jupyter Project - Tensorflow Notebook',
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/tensorflow-notebook:latest',
+            'supplemental_gids': [100]
+        },
+    }
 ]
 ```
 
-The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
+The special setting is ``supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
 
 If you want to set this globally for all images in place of defining it for each image, or you were not providing a choice of image, you could instead set:
 
 ```
-c.KubeSpawner.singleuser_supplemental_gids = [100]
+c.KubeSpawner.supplemental_gids = [100]
 ```
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
@@ -310,24 +283,30 @@ Because of the size of these images, you may need to set a higher value for the 
 Enabling the JupyterLab Interface
 ---------------------------------
 
-If you have enabled the addition of the JupyterLab extension during the building of the Jupyter notebook images, or are using the official Jupyter project images, which already come bundled with the JupyterLab extension, you can enable it by setting the ``JUPYTER_ENABLE_LAB`` environment variable.
+By default Jupyter Notebook images still use the classic web interface by default. If you want to enable the newer JupyterLab web interface set the ``JUPYTER_ENABLE_LAB`` environment variable.
 
 ```
-c.KubeSpawner.environment = dict(JUPYTER_ENABLE_LAB='true')
+c.KubeSpawner.environment = { 'JUPYTER_ENABLE_LAB': 'true' }
 ```
 
-If using ``ProfilesSpawner`` to provide a list of multiple images and only want the JupyterLab interface enabled for certain images, add an ``environment `` setting to the dictionary of settings for just that image.
+If using a profile list and only want the JupyterLab interface enabled for certain images, add an ``environment`` setting to the dictionary of settings for just that image.
 
 ```
-c.ProfilesSpawner.profiles = [
-    (
-        "Jupyter Project - Minimal Notebook",
-        'minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             environment=dict(JUPYTER_ENABLE_LAB='true'))
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Minimal Notebook (Classic)',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6'
+        }
+    },
+    {
+        'display_name': 'Minimal Notebook (JupyterLab)',
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6',
+            'environment': { 'JUPYTER_ENABLE_LAB': 'true' }
+        }
+    }
 ]
 ```
 
@@ -416,7 +395,7 @@ c.KubeSpawner.volume_mounts = [
 c.KubeSpawner.singleuser_init_containers = [
     {
         'name': 'setup-volume',
-        'image': 's2i-minimal-notebook:3.5',
+        'image': 's2i-minimal-notebook:3.6',
         'command': [
             'setup-volume.sh',
             '/opt/app-root',
