@@ -25,25 +25,27 @@ To load an image stream definition for a minimal Jupyter notebook image designed
 oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyter-notebooks/master/image-streams/s2i-minimal-notebook.json
 ```
 
-A tagged image ``s2i-minimal-notebook:3.6`` should be created in your project. This image is based on CentOS.
+An image stream named ``s2i-minimal-notebook`` should be created in your project, with tags ``3.5`` and ``3.6``, corresponding to Python 3.5 and 3.6 variants of the notebook image. This image is based on CentOS.
 
 For more detailed instructions on creating the minimal notebook image, including how to build it from source code or using a RHEL base image, as well as how to create custom notebook images, read:
 
 * https://github.com/jupyter-on-openshift/jupyter-notebooks
 
-To create the JupyterHub image, next run:
+To load the JupyterHub image, next run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/images.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/image-streams/jupyterhub.json
 ```
 
-This will create a build configuration in your OpenShift project to build a JupyterHub image using the Python 3.5 S2I builder. You can watch the progress of the build by running:
+An image stream named ``jupyterhub`` should be created in your project, with a tag corresponding to whatever is the latest version. This image is also based on CentOS.
+
+If you are using OpenShift Container Platform, and need to instead build a RHEL based version of the JupyterHub image, you can use the command:
 
 ```
-oc logs --follow bc/jupyterhub
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/build-configs/jupyterhub.json
 ```
 
-A tagged image ``jupyterhub:latest`` should be created in your project.
+Use one or the other method. Do not load the image stream and try and create a build config to create it, at the same time.
 
 Loading the JupyterHub Templates
 --------------------------------
@@ -51,8 +53,12 @@ Loading the JupyterHub Templates
 To make it easier to deploy JupyterHub in OpenShift, templates are provided. To load the templates run:
 
 ```
-oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-builder.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-deployer.json
+oc create -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-quickstart.json
 ```
+
+This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer`` and ``jupyterhub-quickstart``.
 
 Creating the JupyterHub Deployment
 ----------------------------------
@@ -114,7 +120,7 @@ oc new-app --template jupyterhub-quickstart \
   --param BUILDER_IMAGE=s2i-minimal-notebook:3.5
 ```
 
-The ``s2i-minimal-notebook:3.5`` builder image is used here instead of the default ``s2i-minimal-notebook:3.6`` build image, as the repository being used as input to the S2I build only supports Python 3.5.
+The ``s2i-minimal-notebook:3.5`` builder image is used in this specific case instead of the default ``s2i-minimal-notebook:3.6`` build image, as the repository being used as input to the S2I build only supports Python 3.5.
 
 The notebook image will be built in parallel to JupyterHub being deployed. You will need to wait until the build of the image has completed before you can visit JupyterHub the first time. You can monitor the build of the image using the command:
 
@@ -127,7 +133,7 @@ To deploy JupyterHub using a custom notebook image you had already created, run:
 ```
 oc new-app --template jupyterhub-deployer \
   --param APPLICATION_NAME=jakevdp \
-  --param NOTEBOOK_IMAGE=jakevdp-notebook:latest
+  --param NOTEBOOK_IMAGE=jakevdp-nb:latest
 ```
 
 Because ``APPLICATION_NAME`` was supplied, the JupyterHub instance and notebooks in this case will all be labelled with ``jakevdp``.
