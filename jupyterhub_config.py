@@ -80,8 +80,8 @@ def resolve_image_name(name):
         image_stream = image_stream_resource.get(namespace=namespace,
                 name=source_image)
 
-    except APIException as e:
-        if e.status != 404:
+    except ApiException as e:
+        if e.status not in (403, 404):
             raise
 
         return name
