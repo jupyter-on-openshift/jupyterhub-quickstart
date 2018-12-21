@@ -110,7 +110,7 @@ To deploy JupyterHub and have it build a custom notebook image for you, run:
 ```
 oc new-app --template jupyterhub-quickstart \
   --param APPLICATION_NAME=jakevdp \
-  --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook
+  --param GIT_REPOSITORY_URL=https://github.com/jakevdp/PythonDataScienceHandbook \
   --param BUILDER_IMAGE=s2i-minimal-notebook:3.5
 ```
 
