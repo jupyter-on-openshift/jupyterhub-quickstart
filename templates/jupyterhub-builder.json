@@ -1,0 +1,100 @@
+{
+    "kind": "Template",
+    "apiVersion": "template.openshift.io/v1",
+    "metadata": {
+        "name": "jupyterhub-builder",
+        "annotations": {
+            "openshift.io/display-name": "JupyterHub Builder",
+            "description": "Template for creating customised JupyterHub images.",
+            "iconClass": "icon-python",
+            "tags": "python,jupyter,jupyterhub"
+        }
+    },
+    "parameters": [
+        {
+            "name": "JUPYTERHUB_NAME",
+            "value": "custom-jupyterhub",
+            "required": true
+        },
+        {
+            "name": "BUILDER_IMAGE",
+            "value": "jupyterhub:3.0.0",
+            "required": true
+        },
+        {
+            "name": "GIT_REPOSITORY_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "GIT_REFERENCE",
+            "value": "master",
+            "required": true
+        },
+        {
+            "name": "CONTEXT_DIR",
+            "value": "",
+            "required": false
+        }
+    ],
+    "objects": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "image.openshift.io/v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_NAME}",
+                "labels": {
+                    "build": "${JUPYTERHUB_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "build.openshift.io/v1",
+            "metadata": {
+                "name": "${JUPYTERHUB_NAME}",
+                "labels": {
+                    "build": "${JUPYTERHUB_NAME}"
+                }
+            },
+            "spec": {
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange"
+                    }
+                ],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${GIT_REPOSITORY_URL}",
+                        "ref": "${GIT_REFERENCE}"
+                    },
+                    "contextDir": "${CONTEXT_DIR}"
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "${BUILDER_IMAGE}"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${JUPYTERHUB_NAME}:latest"
+                    }
+                }
+            }
+        }
+    ]
+}
