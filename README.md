@@ -199,48 +199,31 @@ Note that triggering a new deployment will result in any running notebook instan
 Providing a Selection of Images to Deploy
 -----------------------------------------
 
-When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of images you will need to set ``wrapspawner.ProfilesSpawner`` as the spawner class for JupyterHub and provide a list of the image choices, in the JupyterHub configuration. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
-
-Note that the ``wrapspawner`` package is installed by default, so you do not need to use the S2I build method to create a custom JupyterHub image.
+When deploying JupyterHub using the templates, the ``NOTEBOOK_IMAGE`` template parameter is used to specify the name of the image which is to be deployed when starting an instance for a user. If you want to provide users a choice of images you will need to define what is called a profile list in the configuration. The list of images will be presented in a drop down menu when the user requests a notebook instance be started through the JupyterHub web interface.
 
 ```
-c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
-
-c.ProfilesSpawner.profiles = [
-    (
-        "Minimal Notebook (CentOS 7 / Python 3.6)",
-        's2i-minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-minimal-notebook:3.6')
-    ),
-    (
-        "SciPy Notebook (CentOS 7 / Python 3.6)",
-        's2i-scipy-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-scipy-notebook:3.6')
-    ),
-    (
-        "Tensorflow Notebook (CentOS 7 / Python 3.6)",
-        's2i-tensorflow-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='s2i-tensorflow-notebook:3.6')
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Minimal Notebook (CentOS 7 / Python 3.5)',
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.5'
+        }
+    },
+    {
+        'display_name': 'Minimal Notebook (CentOS 7 / Python 3.6)',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6'
+        }
+    }
 ]
 ```
 
 This will override any image defined by the ``NOTEBOOK_IMAGE`` template parameter.
 
-The first value in the tuple for an image is the display name. The second value is a unique key identifying the selection. The third value should always be ``kubespawner.KubeSpawner``. The final value is a dictionary with the settings to be applied to the spawner when deploying the image.
+For further information on using the profile list configuration see the ``KubeSpawner`` documentation.
 
-In this case, the ``singleuser_image_spec`` setting should be set to the name for the deployed image. The name of the image should be the name of the image stream in the same project JupyterHub is deployed, including an image tag if not ``latest``, or can be the full image name identifying an image on a remote image registry.
-
-This dictionary can be used to set other per image specific settings if required.
-
-When multiple choices are available, the user can still only have one notebook instance running at a time. If they want to switch which image they are using, they need to use the _Control Panel_ in the JupyterHub web interface to stop the existing notebook instance. They can then start a new instance with a different image.
-
-Note that there is currently an issue with JupyterHub when using ``wrapspawner.ProfilesSpawner``. This will prevent you accessing a server of another user as an admin from the Jupyter admin control panel. Details of this issue can be found at:
-
-* https://github.com/jupyterhub/jupyterhub/issues/1629
+* https://jupyterhub-kubespawner.readthedocs.io/en/latest/spawner.html
 
 Using the Jupyter Project Notebook Images
 -----------------------------------------
@@ -258,56 +241,41 @@ The official Jupyter Project notebook images:
 
 will not work out of the box with OpenShift. This is because they have not been designed to work with an arbitrarily assigned user ID without additional configuration. The images are also very large and the size exceeds what can be deployed to hosted OpenShift environments such as OpenShift Online.
 
-If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply additional configuration to the ``KubeSpanwer`` plugin for these images to have them work. For example:
+If you still want to run the official Jupyter Project notebook images, you can, but you will need to supply additional configuration to the ``KubeSpawner`` plugin for these images to have them work. For example:
 
 ```
-c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
-
-c.ProfilesSpawner.profiles = [
-    (
-        "Jupyter Project - Minimal Notebook",
-        'minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - SciPy Notebook",
-        'scipy-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/scipy-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - DataScience Notebook",
-        'datascience-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/datascience-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - Tensorflow Notebook",
-        'tensorflow-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/tensorflow-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    ),
-    (
-        "Jupyter Project - R Notebook",
-        'r-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/r-notebook:latest',
-             singleuser_supplemental_gids=[100])
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Jupyter Project - Minimal Notebook',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/minimal-notebook:latest',
+            'supplemental_gids': [100]
+        }
+    },
+    {
+        'display_name': 'Jupyter Project - Scipy Notebook',
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/scipy-notebook:latest',
+            'supplemental_gids': [100]
+        }
+    },
+    {
+        'display_name': 'Jupyter Project - Tensorflow Notebook',
+        'kubespawner_override': {
+            'image_spec': 'docker.io/jupyter/tensorflow-notebook:latest',
+            'supplemental_gids': [100]
+        },
+    }
 ]
 ```
 
-The special setting is ``singleuser_supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
+The special setting is ``supplemental_gids``, with it needing to be set to include the UNIX group ID of ``100``.
 
 If you want to set this globally for all images in place of defining it for each image, or you were not providing a choice of image, you could instead set:
 
 ```
-c.KubeSpawner.singleuser_supplemental_gids = [100]
+c.KubeSpawner.supplemental_gids = [100]
 ```
 
 Because of the size of these images, you may need to set a higher value for the spawner ``start_timeout`` setting to ensure starting a notebook instance from the image doesn't fail the first time a new node in the cluster is used for that image. Alternatively, you could have a cluster administrator pre-pull images to each node in the cluster.
@@ -315,24 +283,30 @@ Because of the size of these images, you may need to set a higher value for the 
 Enabling the JupyterLab Interface
 ---------------------------------
 
-If you have enabled the addition of the JupyterLab extension during the building of the Jupyter notebook images, or are using the official Jupyter project images, which already come bundled with the JupyterLab extension, you can enable it by setting the ``JUPYTER_ENABLE_LAB`` environment variable.
+By default Jupyter Notebook images still use the classic web interface by default. If you want to enable the newer JupyterLab web interface set the ``JUPYTER_ENABLE_LAB`` environment variable.
 
 ```
-c.KubeSpawner.environment = dict(JUPYTER_ENABLE_LAB='true')
+c.KubeSpawner.environment = { 'JUPYTER_ENABLE_LAB': 'true' }
 ```
 
-If using ``ProfilesSpawner`` to provide a list of multiple images and only want the JupyterLab interface enabled for certain images, add an ``environment `` setting to the dictionary of settings for just that image.
+If using a profile list and only want the JupyterLab interface enabled for certain images, add an ``environment`` setting to the dictionary of settings for just that image.
 
 ```
-c.ProfilesSpawner.profiles = [
-    (
-        "Jupyter Project - Minimal Notebook",
-        'minimal-notebook',
-        'kubespawner.KubeSpawner',
-        dict(singleuser_image_spec='docker.io/jupyter/minimal-notebook:latest',
-             singleuser_supplemental_gids=[100],
-             environment=dict(JUPYTER_ENABLE_LAB='true'))
-    )
+c.KubeSpawner.profile_list = [
+    {
+        'display_name': 'Minimal Notebook (Classic)',
+        'default': True,
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6'
+        }
+    },
+    {
+        'display_name': 'Minimal Notebook (JupyterLab)',
+        'kubespawner_override': {
+            'image_spec': 's2i-minimal-notebook:3.6',
+            'environment': { 'JUPYTER_ENABLE_LAB': 'true' }
+        }
+    }
 ]
 ```
 
