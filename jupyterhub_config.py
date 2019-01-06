@@ -174,7 +174,7 @@ if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
 # name as the target, it replaces it with localhost. This works because
 # the proxy is in the same pod. It is not possible to change hub_connect_ip
 # to localhost because that is passed to other pods which need to contact
-# back to JupyterHub, as so it must be the service name.
+# back to JupyterHub, and so it must be left as the service name.
 
 @wrapt.patch_function_wrapper('jupyterhub.proxy', 'ConfigurableHTTPProxy.add_route')
 def _wrapper_add_route(wrapped, instance, args, kwargs):
