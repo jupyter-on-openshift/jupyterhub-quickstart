@@ -1,5 +1,4 @@
 import os
-import socket
 
 from kubernetes.client.rest import ApiException
 
@@ -115,7 +114,7 @@ c.JupyterHub.port = 8080
 c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_port = 8081
 
-c.JupyterHub.hub_connect_ip = socket.gethostbyname(application_name)
+c.JupyterHub.hub_connect_ip = application_name
 
 c.ConfigurableHTTPProxy.api_url = 'http://127.0.0.1:8082'
 
