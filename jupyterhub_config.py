@@ -1,5 +1,7 @@
 import os
 
+import wrapt
+
 from kubernetes.client.rest import ApiException
 
 from openshift.config import load_incluster_config
@@ -162,6 +164,32 @@ c.KubeSpawner.image_spec = resolve_image_name(
 
 if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
     c.Spawner.mem_limit = convert_size_to_bytes(os.environ['JUPYTERHUB_NOTEBOOK_MEMORY'])
+
+# Workaround bug in minishift where a service cannot be contacted from a
+# pod which backs the service. For further details see the minishift issue
+# https://github.com/minishift/minishift/issues/2400.
+#
+# What this workaround does is monkey patch the JupyterHub proxy client
+# API code and when it sees a mapping being set up which uses the service
+# name as the target, it replaces it with localhost. This works because
+# the proxy is in the same pod. It is not possible to change hub_connect_ip
+# to localhost because that is passed to other pods which need to contact
+# back to JupyterHub, as so it must be the service name.
+
+@wrapt.patch_function_wrapper('jupyterhub.proxy', 'ConfigurableHTTPProxy.add_route')
+def _wrapper_add_route(wrapped, instance, args, kwargs):
+    def _extract_args(routespec, target, data, *_args, **_kwargs):
+        return (routespec, target, data, _args, _kwargs)
+
+    routespec, target, data, _args, _kwargs = _extract_args(*args, **kwargs)
+
+    old = 'http://%s:%s' % (c.JupyterHub.hub_connect_ip, c.JupyterHub.hub_port)
+    new = 'http://127.0.0.1:%s' % c.JupyterHub.hub_port
+
+    if target.startswith(old):
+        target = target.replace(old, new)
+
+    return wrapped(routespec, target, data, *_args, **_kwargs)
 
 # Load configuration included in the image.
 
