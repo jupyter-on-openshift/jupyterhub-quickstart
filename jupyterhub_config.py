@@ -169,12 +169,14 @@ if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
 # pod which backs the service. For further details see the minishift issue
 # https://github.com/minishift/minishift/issues/2400.
 #
-# What this workaround does is monkey patch the JupyterHub proxy client
-# API code and when it sees a mapping being set up which uses the service
-# name as the target, it replaces it with localhost. This works because
-# the proxy is in the same pod. It is not possible to change hub_connect_ip
-# to localhost because that is passed to other pods which need to contact
-# back to JupyterHub, and so it must be left as the service name.
+# What these workarounds do is monkey patch the JupyterHub proxy client
+# API code, and the code for creating the environment for local service
+# processes, and when it sees something which uses the service name as
+# the target in a URL, it replaces it with localhost. These work because
+# the proxy/service processes are in the same pod. It is not possible to
+# change hub_connect_ip to localhost because that is passed to other
+# pods which need to contact back to JupyterHub, and so it must be left
+# as the service name.
 
 @wrapt.patch_function_wrapper('jupyterhub.proxy', 'ConfigurableHTTPProxy.add_route')
 def _wrapper_add_route(wrapped, instance, args, kwargs):
@@ -190,6 +192,21 @@ def _wrapper_add_route(wrapped, instance, args, kwargs):
         target = target.replace(old, new)
 
     return wrapped(routespec, target, data, *_args, **_kwargs)
+
+@wrapt.patch_function_wrapper('jupyterhub.spawner', 'LocalProcessSpawner.get_env')
+def _wrapper_get_env(wrapped, instance, args, kwargs):
+    env = wrapped(*args, **kwargs)
+
+    target = env.get('JUPYTERHUB_API_URL')
+
+    old = 'http://%s:%s' % (c.JupyterHub.hub_connect_ip, c.JupyterHub.hub_port)
+    new = 'http://127.0.0.1:%s' % c.JupyterHub.hub_port
+
+    if target and target.startswith(old):
+        target = target.replace(old, new)
+        env['JUPYTERHUB_API_URL'] = target
+
+    return env
 
 # Load configuration included in the image.
 
