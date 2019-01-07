@@ -14,10 +14,10 @@
                 },
                 "tags": [
                     {
-                        "name": "3.0.3",
+                        "name": "3.0.4",
                         "from": {
                             "kind": "DockerImage",
-                            "name": "quay.io/jupyteronopenshift/jupyterhub:3.0.3"
+                            "name": "quay.io/jupyteronopenshift/jupyterhub:3.0.4"
                         }
                     }
                 ]
