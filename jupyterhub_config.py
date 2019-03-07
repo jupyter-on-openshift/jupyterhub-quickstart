@@ -4,8 +4,9 @@ import wrapt
 
 from kubernetes.client.rest import ApiException
 
-from openshift.config import load_incluster_config
-from openshift.client.api_client import ApiClient
+from kubernetes.client.configuration import Configuration
+from kubernetes.config.incluster_config import load_incluster_config
+from kubernetes.client.api_client import ApiClient
 from openshift.dynamic import DynamicClient
 
 # Helper function for doing unit conversions or translations if needed.
@@ -45,8 +46,19 @@ with open(os.path.join(service_account_path, 'namespace')) as fp:
     namespace = fp.read().strip()
 
 # Initialise client for the REST API used doing configuration.
+#
+# XXX Currently have a workaround here for OpenShift 4.0 beta versions
+# which disables verification of the certificate. If don't use this the
+# Python openshift/kubernetes clients will fail. We also disable any
+# warnings from urllib3 to get rid of the noise in the logs this creates.
 
 load_incluster_config()
+
+import urllib3
+urllib3.disable_warnings()
+instance = Configuration()
+instance.verify_ssl = False
+Configuration.set_default(instance)
 
 api_client = DynamicClient(ApiClient())
 
