@@ -5,5 +5,5 @@ jupyterhub-tmpauthenticator==0.5
 oauthenticator==0.8.0
 jupyterhub-ldapauthenticator==1.2.2
 psycopg2==2.7.6.1
-openshift==0.8.4
+openshift==0.8.6
 wrapt==1.10.11
