@@ -1,9 +1,10 @@
-jupyterhub==0.9.4
+kubernetes==9.0.0
+jupyterhub==0.9.6
 jupyterhub-kubespawner==0.10.1
 git+https://github.com/jupyterhub/wrapspawner.git@5f2b7075f77d0c1c49066682a8e8adad0dab76db
-jupyterhub-tmpauthenticator==0.5
-oauthenticator==0.8.0
+jupyterhub-tmpauthenticator==0.6
+oauthenticator==0.8.2
 jupyterhub-ldapauthenticator==1.2.2
-psycopg2==2.7.6.1
-openshift==0.8.6
-wrapt==1.10.11
+psycopg2==2.8.3
+openshift==0.9.0
+wrapt==1.11.2
