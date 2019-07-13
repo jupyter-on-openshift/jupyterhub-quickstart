@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+set -x
+
 # Ensure we are using the latest pip and wheel packages.
 
 pip install -U pip setuptools wheel
