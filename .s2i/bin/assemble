@@ -53,6 +53,7 @@ ln -s /opt/app-root/bin/wait-for-database /opt/app-root/scripts/wait-for-databas
 
 # Ensure passwd/group file intercept happens for any shell environment.
 
+echo "HOME=\${HOME:-$HOME}" >> /opt/app-root/etc/scl_enable
 echo "source /opt/app-root/etc/generate_container_user" >> /opt/app-root/etc/scl_enable
 
 # Create additional directories.
