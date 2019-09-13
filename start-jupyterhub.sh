@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 set -eo pipefail
 
 # Add scripts directory to program search path.
