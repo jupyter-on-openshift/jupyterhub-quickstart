@@ -1,6 +1,7 @@
 kubernetes==9.0.0
 jupyterhub==0.9.6
-jupyterhub-kubespawner==0.10.1
+#jupyterhub-kubespawner==0.10.1
+git+https://github.com/jupyter-on-openshift/kubespawner.git@055f6f29fd4d7ee56d1e9cca1aacdd6f5fd19507#egg=jupyterhub-kubespawner
 git+https://github.com/jupyterhub/wrapspawner.git@5f2b7075f77d0c1c49066682a8e8adad0dab76db
 jupyterhub-tmpauthenticator==0.6
 oauthenticator==0.8.2
