@@ -47,6 +47,11 @@
             "required": false
         },
         {
+            "name": "JUPYTERHUB_ENVVARS",
+            "value": "",
+            "required": false
+        },
+        {
             "name": "DATABASE_PASSWORD",
             "generate": "expression",
             "from": "[a-zA-Z0-9]{16}",
@@ -146,7 +151,8 @@
                 }
             },
             "data": {
-                "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}"
+                "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}",
+                "jupyterhub_config.sh": "${JUPYTERHUB_ENVVARS}"
             }
         },
         {
