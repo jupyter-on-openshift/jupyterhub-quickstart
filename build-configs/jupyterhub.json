@@ -39,7 +39,7 @@
                     "type": "Git",
                     "git": {
                         "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git",
-                        "ref": "3.2.1"
+                        "ref": "3.2.2"
                     }
                 },
                 "strategy": {
@@ -55,7 +55,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "jupyterhub:3.2.1"
+                        "name": "jupyterhub:3.2.2"
                     }
                 }
             }
