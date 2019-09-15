@@ -2,11 +2,10 @@ import os
 
 import wrapt
 
-from kubernetes.client.rest import ApiException
-
 from kubernetes.client.configuration import Configuration
 from kubernetes.config.incluster_config import load_incluster_config
 from kubernetes.client.api_client import ApiClient
+from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 
 # Helper function for doing unit conversions or translations if needed.
@@ -37,14 +36,6 @@ def convert_size_to_bytes(size):
     except ValueError:
         raise RuntimeError('"%s" is not a valid memory specification. Must be an integer or a string with suffix K, M, G, T, Ki, Mi, Gi or Ti.' % size)
 
-# Work out the name of the namespace in which we are being deployed.
-# deployment is in.
-
-service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
-
-with open(os.path.join(service_account_path, 'namespace')) as fp:
-    namespace = fp.read().strip()
-
 # Initialise client for the REST API used doing configuration.
 #
 # XXX Currently have a workaround here for OpenShift 4.0 beta versions
@@ -64,6 +55,34 @@ api_client = DynamicClient(ApiClient())
 
 image_stream_resource = api_client.resources.get(
      api_version='image.openshift.io/v1', kind='ImageStream')
+
+route_resource = api_client.resources.get(
+     api_version='route.openshift.io/v1', kind='Route')
+
+# Work out the name of the JupyterHub deployment passed in environment.
+
+application_name = os.environ.get('APPLICATION_NAME', 'jupyterhub')
+
+# Work out the name of the namespace in which we are being deployed.
+
+service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
+
+with open(os.path.join(service_account_path, 'namespace')) as fp:
+    namespace = fp.read().strip()
+
+# Work out hostname for the exposed route of the JupyterHub server.
+
+routes = route_resource.get(namespace=namespace)
+
+def extract_hostname(routes, name):
+    for route in routes.items:
+        if route.metadata.name == name:
+            return route.spec.host
+
+public_hostname = extract_hostname(routes, application_name)
+
+if not public_hostname:
+    raise RuntimeError('Cannot calculate external host name for JupyterHub.')
 
 # Helper function for determining the correct name for the image. We
 # need to do this for references to image streams because of the image
@@ -116,12 +135,7 @@ def resolve_image_name(name):
 
     return name
 
-# Define the default configuration for JupyterHub application. The
-# JUPYTERHUB_SERVICE_NAME is kept for backward compatibility only, use
-# APPLICATION_NAME to pass in the name of the deployment.
-
-application_name = os.environ.get('APPLICATION_NAME', 'jupyterhub')
-application_name = os.environ.get('JUPYTERHUB_SERVICE_NAME', application_name)
+# Define the default configuration for JupyterHub application.
 
 c.JupyterHub.port = 8080
 
