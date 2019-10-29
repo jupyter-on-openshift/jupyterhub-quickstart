@@ -65,6 +65,36 @@
             "description": "Amount of memory available to each notebook.",
             "value": "512Mi",
             "required": true
+        },
+        {
+            "name": "OAUTH_CLIENT_ID",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH_CALLBACK_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_TOKEN_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_AUTHORIZE_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_USERDATA_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_USERNAME_KEY",
+            "value": "preferred_username",
+            "required": true
         }
     ],
     "objects": [
@@ -231,6 +261,39 @@
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
                                         "value": "${COOKIE_SECRET}"
+                                    },
+                                    {
+                                        "name": "OAUTH_CLIENT_ID",
+                                        "value": "${OAUTH_CLIENT_ID}"
+                                    },
+                                    {
+                                        "name": "OAUTH_CALLBACK_URL",
+                                        "value": "${OAUTH_CALLBACK_URL}"
+                                    },
+                                    {
+                                        "name": "OAUTH2_TOKEN_URL",
+                                        "value": "${OAUTH2_TOKEN_URL}"
+                                    },
+                                    {
+                                        "name": "OAUTH2_AUTHORIZE_URL",
+                                        "value": "${OAUTH2_AUTHORIZE_URL}"
+                                    },
+                                    {
+                                        "name": "OAUTH2_USERDATA_URL",
+                                        "value": "${OAUTH2_USERDATA_URL}"
+                                    },
+                                    {
+                                        "name": "OAUTH2_USERNAME_KEY",
+                                        "value": "${OAUTH2_USERNAME_KEY}"
+                                    },
+                                    {
+                                        "name": "OAUTH_CLIENT_SECRET",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "oauth",
+                                                 "key": "client_secret"
+                                            }
+                                        }
                                     }
                                 ],
                                 "volumeMounts": [
