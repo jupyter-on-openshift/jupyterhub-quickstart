@@ -18,7 +18,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE",
-            "value": "jupyterhub:3.2.2",
+            "value": "jupyterhub:3.3.0",
             "required": true
         },
         {
@@ -432,7 +432,7 @@
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "postgresql:9.5",
+                                "name": "postgresql:9.6",
                                 "namespace": "openshift"
                             }
                         },
