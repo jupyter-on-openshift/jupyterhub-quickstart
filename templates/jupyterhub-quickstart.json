@@ -18,7 +18,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE",
-            "value": "jupyterhub:3.3.0",
+            "value": "jupyterhub:3.3.1",
             "required": true
         },
         {
@@ -162,6 +162,11 @@
                 "name": "${APPLICATION_NAME}-hub",
                 "labels": {
                     "app": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "serviceaccounts.openshift.io/oauth-redirectreference.first": "{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"${APPLICATION_NAME}\"}}",
+                    "serviceaccounts.openshift.io/oauth-redirecturi.first": "hub/oauth_callback",
+                    "serviceaccounts.openshift.io/oauth-want-challenges": "false"
                 }
             }
         },
@@ -181,8 +186,8 @@
                 }
             ],
             "roleRef": {
-		"apiGroup": "rbac.authorization.k8s.io",
-		"kind": "ClusterRole",
+                "apiGroup": "rbac.authorization.k8s.io",
+                "kind": "ClusterRole",
                 "name": "edit"
             }
         },
