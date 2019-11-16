@@ -91,6 +91,11 @@
             "value": "classic"
         },
         {
+            "name": "OPENSHIFT_PROJECT",
+            "value": "",
+            "required": false
+        },
+        {
             "name": "VOLUME_SIZE",
             "description": "Amount of storage available to each user.",
             "value": ""
@@ -284,6 +289,10 @@
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_INTERFACE",
                                         "value": "${NOTEBOOK_INTERFACE}"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_PROJECT",
+                                        "value": "${OPENSHIFT_PROJECT}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_VOLUME_SIZE",
