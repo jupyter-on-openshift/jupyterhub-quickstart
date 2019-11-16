@@ -56,9 +56,10 @@ To make it easier to deploy JupyterHub in OpenShift, templates are provided. To 
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-builder.json
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-deployer.json
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-quickstart.json
+oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-workspace.json
 ```
 
-This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer`` and ``jupyterhub-quickstart``.
+This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer``, ``jupyterhub-quickstart`` and ``jupyterhub-workspace``.
 
 Creating the JupyterHub Deployment
 ----------------------------------
