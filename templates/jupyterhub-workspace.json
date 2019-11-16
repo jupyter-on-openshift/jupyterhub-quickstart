@@ -2,15 +2,25 @@
     "kind": "Template",
     "apiVersion": "template.openshift.io/v1",
     "metadata": {
-        "name": "jupyterhub-quickstart",
+        "name": "jupyterhub-workspace",
         "annotations": {
-            "openshift.io/display-name": "JupyterHub Quickstart",
-            "description": "Template for creating and deploying customised Jupyter notebook images using JupyterHub.",
+            "openshift.io/display-name": "JupyterHub Workspace",
+            "description": "Template for deploying a JupyterHub instance with cluster access.",
             "iconClass": "icon-python",
             "tags": "python,jupyter,jupyterhub"
         }
     },
     "parameters": [
+        {
+            "name": "SPAWNER_NAMESPACE",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "CLUSTER_SUBDOMAIN",
+            "value": "",
+            "required": true
+        },
         {
             "name": "APPLICATION_NAME",
             "value": "jupyterhub",
@@ -22,24 +32,9 @@
             "required": true
         },
         {
-            "name": "BUILDER_IMAGE",
+            "name": "NOTEBOOK_IMAGE",
             "value": "s2i-minimal-notebook:3.6",
             "required": true
-        },
-        {
-            "name": "GIT_REPOSITORY_URL",
-            "value": "",
-            "required": true
-        },
-        {
-            "name": "GIT_REFERENCE",
-            "value": "master",
-            "required": true
-        },
-        {
-            "name": "CONTEXT_DIR",
-            "value": "",
-            "required": false
         },
         {
             "name": "JUPYTERHUB_CONFIG",
@@ -48,6 +43,16 @@
         },
         {
             "name": "JUPYTERHUB_ENVVARS",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "ADMIN_USERS",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "REGISTERED_USERS",
             "value": "",
             "required": false
         },
@@ -76,74 +81,51 @@
             "required": true
         },
         {
-            "name": "NOTEBOOK_INTERFACE",
-            "value": "classic"
-        },
-        {
             "name": "NOTEBOOK_MEMORY",
             "description": "Amount of memory available to each notebook.",
             "value": "512Mi",
             "required": true
+        },
+        {
+            "name": "NOTEBOOK_INTERFACE",
+            "value": "classic"
+        },
+        {
+            "name": "OPENSHIFT_PROJECT",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "VOLUME_SIZE",
+            "description": "Amount of storage available to each user.",
+            "value": ""
+        },
+        {
+            "name": "IDLE_TIMEOUT",
+            "description": "Time in seconds after which idle session is culled.",
+            "value": ""
+        },
+        {
+            "name": "OAUTH_CLIENT_SECRET",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{32}"
         }
     ],
     "objects": [
         {
-            "kind": "ImageStream",
-            "apiVersion": "image.openshift.io/v1",
+            "kind": "OAuthClient",
+            "apiVersion": "oauth.openshift.io/v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}-nb",
+                "name": "${APPLICATION_NAME}-${SPAWNER_NAMESPACE}-users",
                 "labels": {
                     "app": "${APPLICATION_NAME}"
                 }
             },
-            "spec": {
-                "lookupPolicy": {
-                    "local": true
-                }
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "build.openshift.io/v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-nb",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            },
-            "spec": {
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange"
-                    }
-                ],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "${GIT_REPOSITORY_URL}",
-                        "ref": "${GIT_REFERENCE}"
-                    },
-                    "contextDir": "${CONTEXT_DIR}"
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "${BUILDER_IMAGE}"
-                        }
-                    }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}-nb:latest"
-                    }
-                }
-            }
+            "secret": "${OAUTH_CLIENT_SECRET}",
+            "grantMethod": "auto",
+            "redirectURIs": [
+                "https://${APPLICATION_NAME}-${SPAWNER_NAMESPACE}.${CLUSTER_SUBDOMAIN}/hub/oauth_callback"
+            ]
         },
         {
             "kind": "ConfigMap",
@@ -156,7 +138,9 @@
             },
             "data": {
                 "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}",
-                "jupyterhub_config.sh": "${JUPYTERHUB_ENVVARS}"
+                "jupyterhub_config.sh": "${JUPYTERHUB_ENVVARS}",
+                "admin_users.txt": "${ADMIN_USERS}",
+                "user_whitelist.txt": "${REGISTERED_USERS}"
             }
         },
         {
@@ -287,12 +271,16 @@
                                 },
                                 "env": [
                                     {
+                                        "name": "CONFIGURATION_TYPE",
+                                        "value": "workspace"
+                                    },
+                                    {
                                         "name": "APPLICATION_NAME",
                                         "value": "${APPLICATION_NAME}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
-                                        "value": "${APPLICATION_NAME}-nb:latest"
+                                        "value": "${NOTEBOOK_IMAGE}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
@@ -301,6 +289,18 @@
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_INTERFACE",
                                         "value": "${NOTEBOOK_INTERFACE}"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_PROJECT",
+                                        "value": "${OPENSHIFT_PROJECT}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_VOLUME_SIZE",
+                                        "value": "${VOLUME_SIZE}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_IDLE_TIMEOUT",
+                                        "value": "${IDLE_TIMEOUT}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
@@ -317,6 +317,10 @@
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
                                         "value": "${COOKIE_SECRET}"
+                                    },
+                                    {
+                                        "name": "OAUTH_CLIENT_SECRET",
+                                        "value": "${OAUTH_CLIENT_SECRET}"
                                     }
                                 ],
                                 "volumeMounts": [

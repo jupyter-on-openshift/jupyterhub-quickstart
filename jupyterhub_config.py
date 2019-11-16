@@ -137,6 +137,16 @@ def resolve_image_name(name):
 
 # Define the default configuration for JupyterHub application.
 
+c.Spawner.environment = dict()
+
+c.JupyterHub.services = []
+
+c.KubeSpawner.init_containers = []
+
+c.KubeSpawner.extra_containers = []
+
+c.JupyterHub.extra_handlers = []
+
 c.JupyterHub.port = 8080
 
 c.JupyterHub.hub_ip = '0.0.0.0'
@@ -191,6 +201,11 @@ c.KubeSpawner.image_spec = resolve_image_name(
 if os.environ.get('JUPYTERHUB_NOTEBOOK_MEMORY'):
     c.Spawner.mem_limit = convert_size_to_bytes(os.environ['JUPYTERHUB_NOTEBOOK_MEMORY'])
 
+notebook_interface = os.environ.get('JUPYTERHUB_NOTEBOOK_INTERFACE')
+
+if notebook_interface:
+    c.Spawner.environment['JUPYTER_NOTEBOOK_INTERFACE'] = notebook_interface
+
 # Workaround bug in minishift where a service cannot be contacted from a
 # pod which backs the service. For further details see the minishift issue
 # https://github.com/minishift/minishift/issues/2400.
@@ -233,6 +248,17 @@ def _wrapper_get_env(wrapped, instance, args, kwargs):
         env['JUPYTERHUB_API_URL'] = target
 
     return env
+
+# Load configuration overrides based on configuration type.
+
+configuration_type = os.environ.get('CONFIGURATION_TYPE')
+
+if configuration_type:
+    config_file = '/opt/app-root/etc/jupyterhub_config-%s.py' % configuration_type
+
+    if os.path.exists(config_file):
+        with open(config_file) as fp:
+            exec(compile(fp.read(), config_file, 'exec'), globals())
 
 # Load configuration included in the image.
 

@@ -56,9 +56,10 @@ To make it easier to deploy JupyterHub in OpenShift, templates are provided. To 
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-builder.json
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-deployer.json
 oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-quickstart.json
+oc apply -f https://raw.githubusercontent.com/jupyter-on-openshift/jupyterhub-quickstart/master/templates/jupyterhub-workspace.json
 ```
 
-This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer`` and ``jupyterhub-quickstart``.
+This should result in the creation of the templates ``jupyterhub-builder``, ``jupyterhub-deployer``, ``jupyterhub-quickstart`` and ``jupyterhub-workspace``.
 
 Creating the JupyterHub Deployment
 ----------------------------------
@@ -438,3 +439,43 @@ c.JupyterHub.services = [
 ```
 
 The ``cull-idle-servers`` program is provided with the JupyterHub image. Adjust the value for the timeout argument as necessary.
+
+Multi User Developer Workspace
+------------------------------
+
+The ``jupyterhub-workspace`` template combines a number of the above configuration options into one template. These include:
+
+* Authentication of users using OpenShift cluster OAuth provider.
+* Optional specification of whitelisted users, including those who are admins.
+* Optional allocation of a persistent storage volume for each user.
+* Optional culling of idle sessions.
+
+Note that the template can only be used with Jupyter notebook images based on the ``s2i-minimal-notebook`` images. You can use official images from the Jupyter Project.
+
+Also, the ``jupyterhub-workspace`` template can only be deployed by a cluster admin, as it needs to create an ``oauthclient`` resource definition, which requires cluster admin access.
+
+To deploy the template and provide persistent storage and idle session culling you can use:
+
+```
+oc new-app --template jupyterhub-workspace --param VOLUME_SIZE=1Gi --param IDLE_TIMEOUT=3600
+```
+
+To delete the deployment first use:
+
+```
+oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=jupyterhub
+```
+
+You then need to delete the ``oauthclient`` resource. Because this is a global resource, verify you are deleting the correct resource first by running:
+
+```
+oc get oauthclient --selector app=jupyterhub
+```
+
+If it is correct, then delete it using:
+
+```
+oc delete oauthclient --selector app=jupyterhub
+```
+
+If there is more than one resource matching the label selector, delete by name the one corresponding to the project you created the deployment in. The project name will be part of the resource name.
