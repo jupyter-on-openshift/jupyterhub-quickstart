@@ -28,7 +28,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE",
-            "value": "jupyterhub:3.3.1",
+            "value": "jupyterhub:3.4.0",
             "required": true
         },
         {
