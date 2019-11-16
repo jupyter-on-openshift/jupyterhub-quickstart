@@ -77,6 +77,10 @@
             "required": true
         },
         {
+            "name": "NOTEBOOK_INTERFACE",
+            "value": "classic"
+        },
+        {
             "name": "VOLUME_SIZE",
             "description": "Amount of storage available to each user.",
             "value": ""
@@ -264,6 +268,10 @@
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
                                         "value": "${NOTEBOOK_MEMORY}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_NOTEBOOK_INTERFACE",
+                                        "value": "${NOTEBOOK_INTERFACE}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_VOLUME_SIZE",

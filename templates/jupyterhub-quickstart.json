@@ -76,6 +76,10 @@
             "required": true
         },
         {
+            "name": "NOTEBOOK_INTERFACE",
+            "value": "classic"
+        },
+        {
             "name": "NOTEBOOK_MEMORY",
             "description": "Amount of memory available to each notebook.",
             "value": "512Mi",
@@ -293,6 +297,10 @@
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
                                         "value": "${NOTEBOOK_MEMORY}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_NOTEBOOK_INTERFACE",
+                                        "value": "${NOTEBOOK_INTERFACE}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
