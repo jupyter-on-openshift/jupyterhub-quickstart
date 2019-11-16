@@ -1,0 +1,533 @@
+{
+    "kind": "Template",
+    "apiVersion": "template.openshift.io/v1",
+    "metadata": {
+        "name": "jupyterhub-workspace",
+        "annotations": {
+            "openshift.io/display-name": "JupyterHub Workspace",
+            "description": "Template for deploying a JupyterHub instance with cluster access.",
+            "iconClass": "icon-python",
+            "tags": "python,jupyter,jupyterhub"
+        }
+    },
+    "parameters": [
+        {
+            "name": "SPAWNER_NAMESPACE",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "CLUSTER_SUBDOMAIN",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "APPLICATION_NAME",
+            "value": "jupyterhub",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_IMAGE",
+            "value": "jupyterhub:3.3.1",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_IMAGE",
+            "value": "s2i-minimal-notebook:3.6",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_CONFIG",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "JUPYTERHUB_ENVVARS",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "DATABASE_PASSWORD",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{16}",
+            "required": true
+        },
+        {
+            "name": "COOKIE_SECRET",
+            "generate": "expression",
+            "from": "[a-f0-9]{32}",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_MEMORY",
+            "description": "Amount of memory available to JupyterHub.",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "DATABASE_MEMORY",
+            "description": "Amount of memory available to PostgreSQL.",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_MEMORY",
+            "description": "Amount of memory available to each notebook.",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "VOLUME_SIZE",
+            "description": "Amount of storage available to each user.",
+            "value": ""
+        },
+        {
+            "name": "IDLE_TIMEOUT",
+            "description": "Time in seconds after which idle session is culled.",
+            "value": ""
+        },
+        {
+            "name": "OAUTH_CLIENT_SECRET",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{32}"
+        }
+    ],
+    "objects": [
+        {
+            "kind": "OAuthClient",
+            "apiVersion": "oauth.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-${SPAWNER_NAMESPACE}-users",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "secret": "${OAUTH_CLIENT_SECRET}",
+            "grantMethod": "auto",
+            "redirectURIs": [
+                "https://${APPLICATION_NAME}-${SPAWNER_NAMESPACE}.${CLUSTER_SUBDOMAIN}/hub/oauth_callback"
+            ]
+        },
+        {
+            "kind": "ConfigMap",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-cfg",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "data": {
+                "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}",
+                "jupyterhub_config.sh": "${JUPYTERHUB_ENVVARS}"
+            }
+        },
+        {
+            "kind": "ServiceAccount",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-hub",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "serviceaccounts.openshift.io/oauth-redirectreference.first": "{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"${APPLICATION_NAME}\"}}",
+                    "serviceaccounts.openshift.io/oauth-redirecturi.first": "hub/oauth_callback",
+                    "serviceaccounts.openshift.io/oauth-want-challenges": "false"
+                }
+            }
+        },
+        {
+            "kind": "RoleBinding",
+            "apiVersion": "authorization.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-edit",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "subjects": [
+                {
+                    "kind": "ServiceAccount",
+                    "name": "${APPLICATION_NAME}-hub"
+                }
+            ],
+            "roleRef": {
+                "apiGroup": "rbac.authorization.k8s.io",
+                "kind": "ClusterRole",
+                "name": "edit"
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "apps.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "wait-for-database",
+                                "jupyterhub"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${JUPYTERHUB_IMAGE}"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "alpha.image.policy.openshift.io/resolve-names": "*"
+                        },
+                        "labels": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "serviceAccountName": "${APPLICATION_NAME}-hub",
+                        "initContainers": [
+                            {
+                                "name": "wait-for-database",
+                                "image": "${JUPYTERHUB_IMAGE}",
+                                "command": [ "wait-for-database" ],
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${JUPYTERHUB_MEMORY}"
+                                    }
+                                },
+                                "env": [
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_HOST",
+                                        "value": "${APPLICATION_NAME}-db"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_NAME",
+                                        "value": "postgres"
+                                    }
+                                ]
+                            }
+                        ],
+                        "containers": [
+                            {
+                                "name": "jupyterhub",
+                                "image": "${JUPYTERHUB_IMAGE}",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${JUPYTERHUB_MEMORY}"
+                                    }
+                                },
+                                "env": [
+                                    {
+                                        "name": "CONFIGURATION_TYPE",
+                                        "value": "workspace"
+                                    },
+                                    {
+                                        "name": "APPLICATION_NAME",
+                                        "value": "${APPLICATION_NAME}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
+                                        "value": "${NOTEBOOK_IMAGE}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
+                                        "value": "${NOTEBOOK_MEMORY}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_VOLUME_SIZE",
+                                        "value": "${VOLUME_SIZE}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_IDLE_TIMEOUT",
+                                        "value": "${IDLE_TIMEOUT}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_HOST",
+                                        "value": "${APPLICATION_NAME}-db"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_DATABASE_NAME",
+                                        "value": "postgres"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_COOKIE_SECRET",
+                                        "value": "${COOKIE_SECRET}"
+                                    },
+                                    {
+                                        "name": "OAUTH_CLIENT_SECRET",
+                                        "value": "${OAUTH_CLIENT_SECRET}"
+                                    }
+                                ],
+                                "volumeMounts": [
+                                    {
+                                        "name": "config",
+                                        "mountPath": "/opt/app-root/configs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "config",
+                                "configMap": {
+                                    "name": "${APPLICATION_NAME}-cfg",
+                                    "defaultMode": 420
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "8080-tcp",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": 8080
+                    },
+                    {
+                        "name": "8081-tcp",
+                        "protocol": "TCP",
+                        "port": 8081,
+                        "targetPort": 8081
+                    }
+                ],
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "route.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "host": "",
+                "to": {
+                    "kind": "Service",
+                    "name": "${APPLICATION_NAME}",
+                    "weight": 100
+                },
+                "port": {
+                    "targetPort": "8080-tcp"
+                },
+                "tls": {
+                    "termination": "edge",
+                    "insecureEdgeTerminationPolicy": "Redirect"
+                }
+            }
+        },
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-db",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1Gi"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "apps.openshift.io/v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-db",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}-db"
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}-db"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "postgresql",
+                                "env": [
+                                    {
+                                        "name": "POSTGRESQL_USER",
+                                        "value": "jupyterhub"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_DATABASE",
+                                        "value": "postgres"
+                                    }
+                                ],
+                                "livenessProbe": {
+                                    "tcpSocket": {
+                                        "port": 5432
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "containerPort": 5432,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${DATABASE_MEMORY}"
+                                    }
+                                },
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/sh",
+                                            "-i",
+                                            "-c",
+                                            "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
+                                        ]
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/var/lib/pgsql/data",
+                                        "name": "data"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "data",
+                                "persistentVolumeClaim": {
+                                    "claimName": "${APPLICATION_NAME}-db"
+                                }
+                            },
+                            {
+                                "name": "config",
+                                "configMap": {
+                                    "name": "${APPLICATION_NAME}-cfg",
+                                    "defaultMode": 420
+                                }
+                            }
+                        ]
+                    }
+                },
+                "triggers": [
+                    {
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "postgresql"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "postgresql:9.6",
+                                "namespace": "openshift"
+                            }
+                        },
+                        "type": "ImageChange"
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-db",
+                "labels": {
+                    "app": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "5432-tcp",
+                        "protocol": "TCP",
+                        "port": 5432,
+                        "targetPort": 5432
+                    }
+                ],
+                "selector": {
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}-db"
+                }
+            }
+        }
+    ]
+}

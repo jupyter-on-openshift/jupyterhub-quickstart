@@ -23,6 +23,9 @@ npm install -g configurable-http-proxy
 cp /tmp/src/jupyterhub_config.py /opt/app-root/etc/
 cp /tmp/src/jupyterhub_config.sh /opt/app-root/etc/
 
+cp /tmp/src/jupyterhub_config-*.py /opt/app-root/etc/
+cp /tmp/src/jupyterhub_config-*.sh /opt/app-root/etc/
+
 # This S2I assemble script is only used when creating the custom image.
 # For when running the image, or using it as a S2I builder, we use a second
 # set of custom S2I scripts. We now need to move these into the correct

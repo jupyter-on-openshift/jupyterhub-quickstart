@@ -234,6 +234,17 @@ def _wrapper_get_env(wrapped, instance, args, kwargs):
 
     return env
 
+# Load configuration overrides based on configuration type.
+
+configuration_type = os.environ.get('CONFIGURATION_TYPE')
+
+if configuration_type:
+    config_file = '/opt/app-root/etc/jupyterhub_config-%s.py' % configuration_type
+
+    if os.path.exists(config_file):
+        with open(config_file) as fp:
+            exec(compile(fp.read(), config_file, 'exec'), globals())
+
 # Load configuration included in the image.
 
 image_config_file = '/opt/app-root/src/.jupyter/jupyterhub_config.py'
