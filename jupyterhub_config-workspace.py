@@ -25,6 +25,18 @@ c.KubeSpawner.extra_labels = {
     'user': '{username}'
 }
 
+# Set up list of registered users and any users nominated as admins.
+
+if os.path.exists('/opt/app-root/configs/admin_users.txt'):
+    with open('/opt/app-root/configs/admin_users.txt') as fp:
+        content = fp.read().strip()
+        if content:
+            c.Authenticator.admin_users = set(content.split())
+
+if os.path.exists('/opt/app-root/configs/user_whitelist.txt'):
+    with open('/opt/app-root/configs/user_whitelist.txt') as fp:
+        c.Authenticator.whitelist = set(fp.read().strip().split())
+
 # For workshops we provide each user with a persistent volume so they
 # don't loose their work. This is mounted on /opt/app-root, so we need
 # to copy the contents from the image into the persistent volume the
