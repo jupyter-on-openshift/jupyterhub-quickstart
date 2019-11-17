@@ -450,14 +450,18 @@ The ``jupyterhub-workspace`` template combines a number of the above configurati
 * Optional allocation of a persistent storage volume for each user.
 * Optional culling of idle sessions.
 
-Note that the template can only be used with Jupyter notebook images based on the ``s2i-minimal-notebook`` images. You can use official images from the Jupyter Project.
+Note that the template can only be used with Jupyter notebook images based on the ``s2i-minimal-notebook`` images. You cannot use official images from the Jupyter Project.
 
-Also, the ``jupyterhub-workspace`` template can only be deployed by a cluster admin, as it needs to create an ``oauthclient`` resource definition, which requires cluster admin access.
+The ``jupyterhub-workspace`` template can only be deployed by a cluster admin, as it needs to create an ``oauthclient`` resource definition, which requires cluster admin access.
+
+You will also need to supply template arguments giving the sub domain used for
+the cluster for hosting applications, and the name of the project the instance is
+being deployed to.
 
 To deploy the template and provide persistent storage and idle session culling you can use:
 
 ```
-oc new-app --template jupyterhub-workspace --param VOLUME_SIZE=1Gi --param IDLE_TIMEOUT=3600
+oc new-app --template jupyterhub-workspace --param CLUSTER_SUBDOMAIN=A.B.C.D.nip.io --SPAWNER_NAMESPACE=jupyter --param VOLUME_SIZE=1Gi --param IDLE_TIMEOUT=3600
 ```
 
 To delete the deployment first use:
