@@ -461,7 +461,7 @@ being deployed to.
 To deploy the template and provide persistent storage and idle session culling you can use:
 
 ```
-oc new-app --template jupyterhub-workspace --param CLUSTER_SUBDOMAIN=A.B.C.D.nip.io --SPAWNER_NAMESPACE=jupyter --param VOLUME_SIZE=1Gi --param IDLE_TIMEOUT=3600
+oc new-app --template jupyterhub-workspace --param CLUSTER_SUBDOMAIN=A.B.C.D.nip.io --SPAWNER_NAMESPACE=`oc project --short` --param VOLUME_SIZE=1Gi --param IDLE_TIMEOUT=3600
 ```
 
 To delete the deployment first use:
